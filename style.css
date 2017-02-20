@@ -12,5 +12,13 @@ body {
 }
 
 #infos,#boutons {
+    display:flex;
+    flex-direction:column;
     width:300px;
+    margin:0 auto;
+    text-align:center;
+}
+
+h3 {
+    text-decoration:underline;
 }
