@@ -1,0 +1,16 @@
+body {
+    display:flex;
+    flex-direction:row;
+}
+
+#jeu {
+    flex:1;
+}
+
+#jeu,#infos {
+    border-right: 5px solid black;
+}
+
+#infos,#boutons {
+    width:300px;
+}
