@@ -16,7 +16,7 @@ const TileType = {
 
 //Random function between two ints
 function rand(low,high){
-    return Math.floor((Math.random() * high) + low); 
+    return Math.floor((Math.random() * high) + low);
 }
 
 //INIT
@@ -201,4 +201,42 @@ function render(SIZE){
 	    jeu.appendChild(t);
 	}
     }
+}
+
+
+////////////////////////////// PLAYER ////////////////////////////
+
+// Var
+
+var posX;
+var posY;
+var initI;
+var initJ;
+var player = document.getElementById("player");
+player.src = "res/spritesheets/link/link_front_1.png";
+
+function initPlace(){
+    var placed = false;
+    while(placed==false){
+	var randomI = Math.floor((Math.random() * 512));
+	var randomJ = Math.floor((Math.random() * 512));
+
+	if(world[randomI][randomJ] == TileType.GRASS){
+	    initI = randomI;
+	    initJ = randomJ;
+	    placed = true;
+	}
+	else if(world[randomI][randomJ] == TileType.SAND){
+	    initI = randomI;
+	    initJ = randomJ;
+	    placed = true;
+	}
+    }
+}
+
+function replace(){
+    player.style.top = initJ*16 + "px";
+    player.style.left= initI*16 + "px";
+    posX = initI;
+    posY = initJ;
 }
