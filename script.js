@@ -1,7 +1,7 @@
 //GLOBALS
 var world;
 var jeu;
-const WORLD_WIDTH = 513;
+const WORLD_WIDTH = 65;
 const COEFF_SCALE = 1.5;
 const LENGTH = 3;
 const WATER_RATIO = 0.3;
@@ -24,6 +24,7 @@ function init(){
     jeu = document.getElementById("jeu");
     gen();
     render(WORLD_WIDTH);
+    //render(50);
 }
 
 //WORLDGEN
@@ -197,7 +198,7 @@ function render(SIZE){
 	    }
 	    src += ".png";
 	    t.src = src;
-	    t.style="width:"+(TILE_SIZE/5)+"px;height:"+(TILE_SIZE/5)+"+px;position:absolute;margin:0;top:"+(TILE_SIZE/5*j)+"px;left:"+(TILE_SIZE/5*i)+"px;";
+	    t.style="width:"+(TILE_SIZE)+"px;height:"+(TILE_SIZE)+"+px;position:absolute;margin:0;top:"+(TILE_SIZE*j)+"px;left:"+(TILE_SIZE*i)+"px;";
 	    jeu.appendChild(t);
 	}
     }
@@ -213,14 +214,16 @@ var posY;
 var initI;
 var initJ;
 var player = document.getElementById("player");
-player.src = "res/spritesheets/link/link_front_1.png";
+player.src = "res/spritesheets/link/link_front_0.png";
+player.addEventListener("keydown", function(event){
+    goTo(event);
+});
 
 function initPlace(){
     var placed = false;
     while(placed==false){
-	var randomI = Math.floor((Math.random() * 512));
-	var randomJ = Math.floor((Math.random() * 512));
-
+	var randomI = Math.floor((Math.random() * (WORLD_WIDTH -1)));
+	var randomJ = Math.floor((Math.random() * (WORLD_WIDTH -1)));
 	if(world[randomI][randomJ] == TileType.GRASS){
 	    initI = randomI;
 	    initJ = randomJ;
@@ -239,4 +242,29 @@ function replace(){
     player.style.left= initI*16 + "px";
     posX = initI;
     posY = initJ;
+}
+
+function goTo(event){
+    console.log("yo");
+    var codeTouche = event.keyCode;
+    var X = player.style.left;
+    var Y = player.style.top;
+    var nbX = X.slice(0,X.length-2);
+    var nbY = Y.slice(0,Y.length-2);
+    
+    if(codeTouche == 40 && ((Number(nbY)) + 50) < 512){
+	player.style.top = (Number(nbY)) + 5 + "px";
+	posY += 5;
+    }
+    if(codeTouche == 38 && ((Number(nbY)) - 50) >= 0){
+	player.style.top = (Number(nbY)) - 50 + "px";
+	posY -= 5;
+    }
+    if(codeTouche == 37 && ((Number(nbX)) - 50) >= 0){
+	player.style.left = (Number(nbX)) - 50 + "px";
+	posX -= 5;
+    }
+    if(codeTouche == 39 && ((Number(nbX)) + 50) < 512){
+	player.style.left = (Number(nbX)) + 50 + "px";
+    }
 }
