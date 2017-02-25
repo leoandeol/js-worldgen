@@ -4,6 +4,14 @@ body {
     margin:0;
 }
 
+#player {
+	position:absolute;
+	width:16px;
+	height:16px;
+	top:0px;
+	left:0px;
+}	
+
 #jeu {
     flex:1;
     position:relative;

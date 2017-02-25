@@ -1,7 +1,7 @@
 //GLOBALS
 var world;
 var jeu;
-const WORLD_WIDTH = 65;
+const WORLD_WIDTH = 33;
 const COEFF_SCALE = 1.5;
 const LENGTH = 3;
 const WATER_RATIO = 0.3;
@@ -209,62 +209,70 @@ function render(SIZE){
 
 // Var
 
-var posX;
-var posY;
+var posI;
+var posJ;
 var initI;
 var initJ;
+var pas = 16;
 var player = document.getElementById("player");
-player.src = "res/spritesheets/link/link_front_0.png";
-player.addEventListener("keydown", function(event){
-    goTo(event);
-});
+var playerImg = document.createElement("img");
+var playerSrc = "res/spritesheets/link/";
+playerImg.src = playerSrc;
+playerImg.src += "link_front_0.png";
+player.appendChild(playerImg);
 
 function initPlace(){
     var placed = false;
     while(placed==false){
-	var randomI = Math.floor((Math.random() * (WORLD_WIDTH -1)));
-	var randomJ = Math.floor((Math.random() * (WORLD_WIDTH -1)));
-	if(world[randomI][randomJ] == TileType.GRASS){
-	    initI = randomI;
-	    initJ = randomJ;
-	    placed = true;
-	}
-	else if(world[randomI][randomJ] == TileType.SAND){
-	    initI = randomI;
-	    initJ = randomJ;
-	    placed = true;
-	}
+		var randomI = Math.floor((Math.random() * (WORLD_WIDTH -1)));
+		var randomJ = Math.floor((Math.random() * (WORLD_WIDTH -1)));
+		if(world[randomI][randomJ] == TileType.GRASS){
+			initI = randomI;
+			initJ = randomJ;
+			placed = true;
+		}
+		else if(world[randomI][randomJ] == TileType.SAND){
+			initI = randomI;
+			initJ = randomJ;
+			placed = true;
+		}
     }
+	replace();
 }
 
 function replace(){
     player.style.top = initJ*16 + "px";
     player.style.left= initI*16 + "px";
-    posX = initI;
-    posY = initJ;
+    posI = initI;
+    posJ = initJ;
 }
 
-function goTo(event){
-    console.log("yo");
+function move(event){
     var codeTouche = event.keyCode;
     var X = player.style.left;
     var Y = player.style.top;
     var nbX = X.slice(0,X.length-2);
     var nbY = Y.slice(0,Y.length-2);
-    
-    if(codeTouche == 40 && ((Number(nbY)) + 50) < 512){
-	player.style.top = (Number(nbY)) + 5 + "px";
-	posY += 5;
+    playerImg.src = playerSrc;
+	
+    if(codeTouche == 40 && ((Number(nbY)) + pas) < 513 && world[posI][posJ+1]!= TileType.WATER){
+	player.style.top = (Number(nbY)) + pas + "px";
+	posJ ++;
+	playerImg.src += "link_front_0.png";
     }
-    if(codeTouche == 38 && ((Number(nbY)) - 50) >= 0){
-	player.style.top = (Number(nbY)) - 50 + "px";
-	posY -= 5;
+    if(codeTouche == 38 && ((Number(nbY)) - pas) >= 0 && world[posI][posJ-1]!= TileType.WATER){
+	player.style.top = (Number(nbY)) - pas + "px";
+	posJ --;
+	playerImg.src += "link_back_0.png";
     }
-    if(codeTouche == 37 && ((Number(nbX)) - 50) >= 0){
-	player.style.left = (Number(nbX)) - 50 + "px";
-	posX -= 5;
+    if(codeTouche == 37 && ((Number(nbX)) - pas) >= 0 && world[posI-1][posJ]!= TileType.WATER){
+	player.style.left = (Number(nbX)) - pas + "px";
+	posI --;
+	playerImg.src += "link_left_1.png";
     }
-    if(codeTouche == 39 && ((Number(nbX)) + 50) < 512){
-	player.style.left = (Number(nbX)) + 50 + "px";
+    if(codeTouche == 39 && ((Number(nbX)) + pas) < 513 && world[posI+1][posJ]!= TileType.WATER){
+	player.style.left = (Number(nbX)) + pas + "px";
+	posI ++;
+	playerImg.src += "link_right_1.png";
     }
 }
