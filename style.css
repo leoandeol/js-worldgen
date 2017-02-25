@@ -10,7 +10,15 @@ body {
 	height:16px;
 	top:0px;
 	left:0px;
+	z-index:1;
 }	
+
+#boat{
+	position:absolute;
+	width:16px;
+	height:16px;
+	z-index:2;
+}
 
 #jeu {
     flex:1;

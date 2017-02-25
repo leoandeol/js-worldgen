@@ -1,7 +1,7 @@
 //GLOBALS
 var world;
 var jeu;
-const WORLD_WIDTH = 65;
+const WORLD_WIDTH = 33;
 const COEFF_SCALE = 1.5;
 const LENGTH = 3;
 const WATER_RATIO = 0.3;
@@ -213,6 +213,7 @@ var posI;
 var posJ;
 var initI;
 var initJ;
+var onBoat = false;
 var pas = 16;
 var player = document.getElementById("player");
 var playerImg = document.createElement("img");
@@ -221,7 +222,7 @@ playerImg.src = playerSrc;
 playerImg.src += "link_front_0.png";
 player.appendChild(playerImg);
 
-function initPlace(){
+function initPlayer(){
     var placed = false;
     while(placed==false){
 		var randomI = Math.floor((Math.random() * (WORLD_WIDTH -1)));
@@ -257,32 +258,188 @@ function move(event){
 		playerImg.src = playerSrc;
 		
 		if(codeTouche == 40){
-			if(((Number(nbY)) + pas) < (WORLD_WIDTH*TILE_SIZE) && world[posI][posJ+1]!= TileType.WATER){
-				player.style.top = (Number(nbY)) + pas + "px";
-				posJ ++;
+			if(((Number(nbY)) + pas) < (WORLD_WIDTH*TILE_SIZE)){
+				if(world[posI][posJ+1]!= TileType.WATER){
+					if(onBoat == true){
+						onBoat = false;
+					}
+					player.style.top = (Number(nbY)) + pas + "px";
+					posJ ++;
+				}
+				else if(world[posI][posJ+1] == TileType.WATER){
+					if(posI == boatI && posJ+1 == boatJ && onBoat == false){
+						onBoat = true;
+						player.style.top = (Number(nbY)) + pas + "px";
+						posJ ++;
+					}
+					else if(onBoat == true){
+						boat.style.zIndex = 2;
+						player.style.zIndex = 1;
+						player.style.top = (Number(nbY)) + pas + "px";
+						boat.style.top = (Number(nbY)) + pas + "px";
+						posJ ++;
+						boatJ ++;						
+						boatImg.src = boatSrc + "boat_front.png";
+					}
+				}
 			}
 			playerImg.src += "link_front_0.png";
 		}
 		if(codeTouche == 38){
-			if(((Number(nbY)) - pas) >= 0 && world[posI][posJ-1]!= TileType.WATER){
-				player.style.top = (Number(nbY)) - pas + "px";
-				posJ --;
+			if(((Number(nbY)) - pas) >= 0 ){
+				if(world[posI][posJ-1]!= TileType.WATER){
+					if(onBoat == true){
+						onBoat = false;
+					}
+					player.style.top = (Number(nbY)) - pas + "px";
+					posJ --;
+					playerImg.src += "link_back_0.png";
+				}
+				else if(world[posI][posJ-1] == TileType.WATER){
+					if(posI == boatI && posJ-1 == boatJ && onBoat == false){
+						onBoat = true;
+						player.style.top = (Number(nbY)) - pas + "px";
+						posJ --;
+						playerImg.src += "link_front_0.png";
+					}
+					else if(onBoat == true){
+						boat.style.zIndex = 2;
+						player.style.zIndex = 1;
+						player.style.top = (Number(nbY)) - pas + "px";
+						boat.style.top = (Number(nbY)) - pas + "px";
+						posJ --;
+						boatJ --;
+						playerImg.src += "link_back_0.png";
+						boatImg.src = boatSrc + "boat_back.png";
+					}
+					else{
+						playerImg.src += "link_back_0.png";
+					}	
+				}	
+				else{
+					playerImg.src += "link_back_0.png";
+				}		
 			}
-			playerImg.src += "link_back_0.png";
+			else{
+				playerImg.src += "link_back_0.png";
+			}
 		}
 		if(codeTouche == 37){
-			if(((Number(nbX)) - pas) >= 0 && world[posI-1][posJ]!= TileType.WATER){
-				player.style.left = (Number(nbX)) - pas + "px";
-				posI --;
+			if(((Number(nbX)) - pas) >= 0 ){
+				if(world[posI-1][posJ]!= TileType.WATER){
+					if(onBoat == true){
+						onBoat = false;
+					}
+					player.style.left = (Number(nbX)) - pas + "px";
+					posI --;
+					playerImg.src += "link_left_1.png";
+				}
+				else if(world[posI-1][posJ] == TileType.WATER){
+					if(posI-1 == boatI && posJ == boatJ && onBoat == false){
+						onBoat = true;
+						player.style.left = (Number(nbX)) - pas + "px";
+						posI --;
+						playerImg.src += "link_front_0.png";
+					}
+					else if(onBoat == true){
+						boat.style.zIndex = 2;
+						player.style.zIndex = 1;
+						player.style.left = (Number(nbX)) - pas + "px";
+						boat.style.left = (Number(nbX)) - pas + "px";
+						posI --;
+						boatI --;
+						playerImg.src += "link_left_1.png";
+						boatImg.src = boatSrc + "boat_left.png";
+					}
+					else{
+						playerImg.src += "link_left_1.png";
+					}		
+				}	
+				else{
+					playerImg.src += "link_left_1.png";
+				}		
 			}
-			playerImg.src += "link_left_1.png";
+			else{
+				playerImg.src += "link_left_1.png";
+			}	
 		}
 		if(codeTouche == 39){
-			if(((Number(nbX)) + pas) < (WORLD_WIDTH*TILE_SIZE)  && world[posI+1][posJ]!= TileType.WATER){
-				player.style.left = (Number(nbX)) + pas + "px";
-				posI ++;
+			if(((Number(nbX)) + pas) < (WORLD_WIDTH*TILE_SIZE)){
+				if(world[posI+1][posJ]!= TileType.WATER){
+					if(onBoat == true){
+						onBoat = false;
+					}
+					player.style.left = (Number(nbX)) + pas + "px";
+					posI ++;
+					playerImg.src += "link_right_1.png";
+				}
+				else if(world[posI+1][posJ] == TileType.WATER){
+					if(posI+1 == boatI && posJ == boatJ && onBoat == false){
+						onBoat = true;
+						player.style.left = (Number(nbX)) + pas + "px";
+						posI ++;
+						playerImg.src += "link_front_0.png";
+					}
+					else if(onBoat == true){
+						boat.style.zIndex = 2;
+						player.style.zIndex = 1;
+						player.style.left = (Number(nbX)) + pas + "px";
+						boat.style.left = (Number(nbX)) + pas + "px";
+						posI ++;
+						boatI ++;
+						playerImg.src += "link_right_1.png";
+						boatImg.src = boatSrc + "boat_right.png";
+					}
+					else{
+						playerImg.src += "link_right_1.png";
+					}
+				}
+				else{
+					playerImg.src += "link_right_1.png";
+				}		
 			}
-			playerImg.src += "link_right_1.png";
+			else{
+				playerImg.src += "link_right_1.png";
+			}
 		}
 	}
+}
+
+
+////////////////////////////// BOAT ////////////////////////////
+
+// Var
+
+var boatI;
+var boatJ;
+var initBoatI;
+var initBoatJ;
+var boat = document.getElementById("boat");
+var boatImg = document.createElement("img");
+var boatSrc = "res/spritesheets/boat/";
+boatImg.src = boatSrc;
+boatImg.src += "boat_front.png";
+boat.appendChild(boatImg);
+
+function initBoat(){
+    var placed = false;
+    while(placed==false){
+		var randomI = Math.floor((Math.random() * (WORLD_WIDTH -1)));
+		var randomJ = Math.floor((Math.random() * (WORLD_WIDTH -1)));
+		if(world[randomI][randomJ] == TileType.WATER){
+			if(world[randomI-1][randomJ] == TileType.GRASS || world[randomI+1][randomJ] == TileType.GRASS || world[randomI][randomJ-1] == TileType.GRASS || world[randomI][randomJ+1] == TileType.GRASS){
+				initBoatI = randomI;
+				initBoatJ = randomJ;
+				placed = true;
+			}
+		}
+    }
+	replaceBoat();
+}
+
+function replaceBoat(){
+    boat.style.top = initBoatJ*TILE_SIZE + "px";
+    boat.style.left= initBoatI*TILE_SIZE + "px";
+    boatI = initBoatI;
+    boatJ = initBoatJ;
 }
