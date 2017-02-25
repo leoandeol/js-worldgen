@@ -7,6 +7,7 @@ const LENGTH = 3;
 const WATER_RATIO = 0.3;
 var T_DYN_WATER = 0;
 const TILE_SIZE = 16;
+const RENDER_SIZE = 10;
 
 const TileType = {
     WATER : 0,
@@ -23,8 +24,10 @@ function rand(low,high){
 function init(){
     jeu = document.getElementById("jeu");
     gen();
-    render(WORLD_WIDTH);
-    //render(50);
+	initPlayer();
+	initBoat();
+    //render(WORLD_WIDTH);
+    render(RENDER_SIZE);
 }
 
 //WORLDGEN
@@ -179,28 +182,28 @@ function calculateWaterLevel(tab, length,SIZE)
 }
 
 function render(SIZE){
-    for(var i = 0; i < SIZE; i++)
-    {
-	for(var j = 0; j < SIZE; j++)
-	{
-	    var t = document.createElement("img");
-	    var src = "img/";
-	    switch(world[i][j]){
-	    case TileType.WATER:
-		src+="water";
-		break;
-	    case TileType.GRASS:
-		src+="grass";
-		break;
-	    case TileType.SAND:
-		src+="sand";
-		break;
-	    }
-	    src += ".png";
-	    t.src = src;
-	    t.style="width:"+(TILE_SIZE)+"px;height:"+(TILE_SIZE)+"+px;position:absolute;margin:0;top:"+(TILE_SIZE*j)+"px;left:"+(TILE_SIZE*i)+"px;";
-	    jeu.appendChild(t);
-	}
+    for(var i = (posI-(SIZE/2)); i < (posI+(SIZE/2)+1); i++){
+		for(var j = (posJ-(SIZE/2)); j < (posJ+(SIZE/2)+1); j++){
+			var t = document.createElement("img");
+			var src = "img/";
+			switch(world[i][j]){
+			case TileType.WATER:
+			src+="water";
+			break;
+			case TileType.GRASS:
+			src+="grass";
+			break;
+			case TileType.SAND:
+			src+="sand";
+			break;
+			}
+			src += ".png";
+			t.src = src;
+			t.id = i+'';
+			t.id += j+'';
+			t.style="width:"+(TILE_SIZE)+"px;height:"+(TILE_SIZE)+"+px;position:absolute;margin:0;top:"+(TILE_SIZE*j)+"px;left:"+(TILE_SIZE*i)+"px;";
+			jeu.appendChild(t);
+		}
     }
 }
 
@@ -227,15 +230,17 @@ function initPlayer(){
     while(placed==false){
 		var randomI = Math.floor((Math.random() * (WORLD_WIDTH -1)));
 		var randomJ = Math.floor((Math.random() * (WORLD_WIDTH -1)));
-		if(world[randomI][randomJ] == TileType.GRASS){
-			initI = randomI;
-			initJ = randomJ;
-			placed = true;
-		}
-		else if(world[randomI][randomJ] == TileType.SAND){
-			initI = randomI;
-			initJ = randomJ;
-			placed = true;
+		if(((randomI+(RENDER_SIZE/2)+1) < WORLD_WIDTH) && ((randomJ+(RENDER_SIZE/2)+1) < WORLD_WIDTH) && ((randomI-(RENDER_SIZE/2)) >= 0) && ((randomJ-(RENDER_SIZE/2)) >= 0)){
+			if(world[randomI][randomJ] == TileType.GRASS){
+				initI = randomI;
+				initJ = randomJ;
+				placed = true;
+			}
+			else if(world[randomI][randomJ] == TileType.SAND){
+				initI = randomI;
+				initJ = randomJ;
+				placed = true;
+			}
 		}
     }
 	replace();
@@ -246,6 +251,127 @@ function replace(){
     player.style.left= initI*TILE_SIZE + "px";
     posI = initI;
     posJ = initJ;
+}
+
+function moveCam(dir,SIZE){
+	switch(dir){
+	case 1:
+		var i = (posJ-(SIZE/2));
+		var k = (posJ+(SIZE/2)+1);
+		for(var j = (posI-(SIZE/2)); j < (posI+(SIZE/2)+1) ; j++){
+			var idOldChild = j+''+i;
+			var oldChild = document.getElementById(idOldChild);
+			jeu.removeChild(oldChild);
+			
+			var idNewChild = j+''+k;			
+			var newChild  = document.createElement("img");
+			var src = "img/";
+			switch(world[j][k]){
+			case TileType.WATER:
+			src+="water";
+			break;
+			case TileType.GRASS:
+			src+="grass";
+			break;
+			case TileType.SAND:
+			src+="sand";
+			break;
+			}
+			src += ".png";
+			newChild.src = src;
+			newChild.id += idNewChild;
+			newChild.style="width:"+(TILE_SIZE)+"px;height:"+(TILE_SIZE)+"+px;position:absolute;margin:0;top:"+(TILE_SIZE*k)+"px;left:"+(TILE_SIZE*j)+"px;";
+			jeu.appendChild(newChild);
+		}
+		break;
+	case 2:
+		var i = (posJ-(SIZE/2));
+		var k = (posJ+(SIZE/2)+1);
+		for(var j = (posI-(SIZE/2)); j < (posI+(SIZE/2)+1) ; j++){
+			var idOldChild = j+''+(k-1);
+			var oldChild = document.getElementById(idOldChild);
+			jeu.removeChild(oldChild);
+			
+			var idNewChild = j+''+(i-1);			
+			var newChild  = document.createElement("img");
+			var src = "img/";
+			switch(world[j][i-1]){
+			case TileType.WATER:
+			src+="water";
+			break;
+			case TileType.GRASS:
+			src+="grass";
+			break;
+			case TileType.SAND:
+			src+="sand";
+			break;
+			}
+			src += ".png";
+			newChild.src = src;
+			newChild.id += idNewChild;
+			newChild.style="width:"+(TILE_SIZE)+"px;height:"+(TILE_SIZE)+"+px;position:absolute;margin:0;top:"+(TILE_SIZE*(i-1))+"px;left:"+(TILE_SIZE*j)+"px;";
+			jeu.appendChild(newChild);
+		}	
+		break;
+	case 3:
+		var i = (posI-(SIZE/2));
+		var k = (posI+(SIZE/2)+1);
+		for(var j = (posJ-(SIZE/2)); j < (posJ+(SIZE/2)+1) ; j++){
+			var idOldChild = i+''+j;
+			var oldChild = document.getElementById(idOldChild);
+			jeu.removeChild(oldChild);
+			
+			var idNewChild = k+''+j;			
+			var newChild  = document.createElement("img");
+			var src = "img/";
+			switch(world[k][j]){
+			case TileType.WATER:
+			src+="water";
+			break;
+			case TileType.GRASS:
+			src+="grass";
+			break;
+			case TileType.SAND:
+			src+="sand";
+			break;
+			}
+			src += ".png";
+			newChild.src = src;
+			newChild.id += idNewChild;
+			newChild.style="width:"+(TILE_SIZE)+"px;height:"+(TILE_SIZE)+"+px;position:absolute;margin:0;top:"+(TILE_SIZE*j)+"px;left:"+(TILE_SIZE*k)+"px;";
+			jeu.appendChild(newChild);
+		}
+		break;
+	case 4:
+		var i = (posI-(SIZE/2));
+		var k = (posI+(SIZE/2)+1);
+		for(var j = (posJ-(SIZE/2)); j < (posJ+(SIZE/2)+1) ; j++){
+			var idOldChild = (k-1)+''+j;
+			var oldChild = document.getElementById(idOldChild);
+			jeu.removeChild(oldChild);
+			
+			var idNewChild = (i-1)+''+j;			
+			var newChild  = document.createElement("img");
+			var src = "img/";
+			switch(world[i-1][j]){
+			case TileType.WATER:
+			src+="water";
+			break;
+			case TileType.GRASS:
+			src+="grass";
+			break;
+			case TileType.SAND:
+			src+="sand";
+			break;
+			}
+			src += ".png";
+			newChild.src = src;
+			newChild.id += idNewChild;
+			newChild.style="width:"+(TILE_SIZE)+"px;height:"+(TILE_SIZE)+"+px;position:absolute;margin:0;top:"+(TILE_SIZE*j)+"px;left:"+(TILE_SIZE*(i-1))+"px;";
+			jeu.appendChild(newChild);
+		}	
+		break;
+	}	
 }
 
 function move(event){
@@ -260,6 +386,9 @@ function move(event){
 		if(codeTouche == 40){
 			if(((Number(nbY)) + pas) < (WORLD_WIDTH*TILE_SIZE)){
 				if(world[posI][posJ+1]!= TileType.WATER){
+					if((((posJ+(RENDER_SIZE/2))+1) < WORLD_WIDTH) && (((posJ-(RENDER_SIZE/2))+1) > 0)){
+						moveCam(1,RENDER_SIZE);
+					}
 					if(onBoat == true){
 						onBoat = false;
 					}
@@ -268,11 +397,17 @@ function move(event){
 				}
 				else if(world[posI][posJ+1] == TileType.WATER){
 					if(posI == boatI && posJ+1 == boatJ && onBoat == false){
+						if((((posJ+(RENDER_SIZE/2))+1) < WORLD_WIDTH) && (((posJ-(RENDER_SIZE/2))+1) > 0)){
+							moveCam(1,RENDER_SIZE);
+						}
 						onBoat = true;
 						player.style.top = (Number(nbY)) + pas + "px";
 						posJ ++;
 					}
 					else if(onBoat == true){
+						if((((posJ+(RENDER_SIZE/2))+1) < WORLD_WIDTH) && (((posJ-(RENDER_SIZE/2))+1) > 0)){
+							moveCam(1,RENDER_SIZE);
+						}
 						boat.style.zIndex = 2;
 						player.style.zIndex = 1;
 						player.style.top = (Number(nbY)) + pas + "px";
@@ -284,10 +419,13 @@ function move(event){
 				}
 			}
 			playerImg.src += "link_front_0.png";
-		}
+		}		
 		if(codeTouche == 38){
 			if(((Number(nbY)) - pas) >= 0 ){
 				if(world[posI][posJ-1]!= TileType.WATER){
+					if((((posJ-(RENDER_SIZE/2))-1) >= 0) && (((posJ+(RENDER_SIZE/2))-1) < WORLD_WIDTH-1)){
+						moveCam(2,RENDER_SIZE);
+					}
 					if(onBoat == true){
 						onBoat = false;
 					}
@@ -297,12 +435,18 @@ function move(event){
 				}
 				else if(world[posI][posJ-1] == TileType.WATER){
 					if(posI == boatI && posJ-1 == boatJ && onBoat == false){
+						if((((posJ-(RENDER_SIZE/2))-1) >= 0) && (((posJ+(RENDER_SIZE/2))-1) < WORLD_WIDTH-1)){
+							moveCam(2,RENDER_SIZE);
+						}
 						onBoat = true;
 						player.style.top = (Number(nbY)) - pas + "px";
 						posJ --;
 						playerImg.src += "link_front_0.png";
 					}
 					else if(onBoat == true){
+						if((((posJ-(RENDER_SIZE/2))-1) >= 0) && (((posJ+(RENDER_SIZE/2))-1) < WORLD_WIDTH-1)){
+							moveCam(2,RENDER_SIZE);
+						}
 						boat.style.zIndex = 2;
 						player.style.zIndex = 1;
 						player.style.top = (Number(nbY)) - pas + "px";
@@ -327,6 +471,9 @@ function move(event){
 		if(codeTouche == 37){
 			if(((Number(nbX)) - pas) >= 0 ){
 				if(world[posI-1][posJ]!= TileType.WATER){
+					if((((posI-(RENDER_SIZE/2))-1) >= 0) && (((posI+(RENDER_SIZE/2))-1) < WORLD_WIDTH-1) && (posJ+1+(RENDER_SIZE/2) <= WORLD_WIDTH) && (posJ-(RENDER_SIZE/2) >= -1)){
+						moveCam(4,RENDER_SIZE);
+					}
 					if(onBoat == true){
 						onBoat = false;
 					}
@@ -336,12 +483,18 @@ function move(event){
 				}
 				else if(world[posI-1][posJ] == TileType.WATER){
 					if(posI-1 == boatI && posJ == boatJ && onBoat == false){
+						if((((posI-(RENDER_SIZE/2))-1) >= 0) && (((posI+(RENDER_SIZE/2))-1) < WORLD_WIDTH-1) && (posJ+1+(RENDER_SIZE/2) <= WORLD_WIDTH) && (posJ-(RENDER_SIZE/2) >= -1)){
+							moveCam(4,RENDER_SIZE);
+						}
 						onBoat = true;
 						player.style.left = (Number(nbX)) - pas + "px";
 						posI --;
 						playerImg.src += "link_front_0.png";
 					}
 					else if(onBoat == true){
+						if((((posI-(RENDER_SIZE/2))-1) >= 0) && (((posI+(RENDER_SIZE/2))-1) < WORLD_WIDTH-1) && (posJ+1+(RENDER_SIZE/2) <= WORLD_WIDTH) && (posJ-(RENDER_SIZE/2) >= -1)){
+							moveCam(4,RENDER_SIZE);
+						}
 						boat.style.zIndex = 2;
 						player.style.zIndex = 1;
 						player.style.left = (Number(nbX)) - pas + "px";
@@ -366,6 +519,9 @@ function move(event){
 		if(codeTouche == 39){
 			if(((Number(nbX)) + pas) < (WORLD_WIDTH*TILE_SIZE)){
 				if(world[posI+1][posJ]!= TileType.WATER){
+					if((((posI+(RENDER_SIZE/2))+1) >= 0) && (((posI-(RENDER_SIZE/2))+1) < WORLD_WIDTH-1) && (posJ+1+(RENDER_SIZE/2) <= WORLD_WIDTH) && (posJ-(RENDER_SIZE/2) >= -1)){
+						moveCam(3,RENDER_SIZE);
+					}
 					if(onBoat == true){
 						onBoat = false;
 					}
@@ -375,12 +531,21 @@ function move(event){
 				}
 				else if(world[posI+1][posJ] == TileType.WATER){
 					if(posI+1 == boatI && posJ == boatJ && onBoat == false){
+						/*if((((posI+(RENDER_SIZE/2))+1) < WORLD_WIDTH) && (((posI-(RENDER_SIZE/2))+1) > 0)){
+							moveCam(3,RENDER_SIZE);
+						}*/
+						if((((posI+(RENDER_SIZE/2))+1) >= 0) && (((posI-(RENDER_SIZE/2))+1) < WORLD_WIDTH-1) && (posJ+1+(RENDER_SIZE/2) <= WORLD_WIDTH) && (posJ-(RENDER_SIZE/2) >= -1)){
+							moveCam(3,RENDER_SIZE);
+						}
 						onBoat = true;
 						player.style.left = (Number(nbX)) + pas + "px";
 						posI ++;
 						playerImg.src += "link_front_0.png";
 					}
 					else if(onBoat == true){
+						if((((posI+(RENDER_SIZE/2))+1) >= 0) && (((posI-(RENDER_SIZE/2))+1) < WORLD_WIDTH-1) && (posJ+1+(RENDER_SIZE/2) <= WORLD_WIDTH) && (posJ-(RENDER_SIZE/2) >= -1)){
+							moveCam(3,RENDER_SIZE);
+						}
 						boat.style.zIndex = 2;
 						player.style.zIndex = 1;
 						player.style.left = (Number(nbX)) + pas + "px";
