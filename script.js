@@ -1,7 +1,7 @@
 //GLOBALS
 var world;
 var jeu;
-const WORLD_WIDTH = 33;
+const WORLD_WIDTH = 65;
 const COEFF_SCALE = 1.5;
 const LENGTH = 3;
 const WATER_RATIO = 0.3;
@@ -241,46 +241,48 @@ function initPlace(){
 }
 
 function replace(){
-    player.style.top = initJ*16 + "px";
-    player.style.left= initI*16 + "px";
+    player.style.top = initJ*TILE_SIZE + "px";
+    player.style.left= initI*TILE_SIZE + "px";
     posI = initI;
     posJ = initJ;
 }
 
 function move(event){
-    var codeTouche = event.keyCode;
-    var X = player.style.left;
-    var Y = player.style.top;
-    var nbX = X.slice(0,X.length-2);
-    var nbY = Y.slice(0,Y.length-2);
-    playerImg.src = playerSrc;
-	
-    if(codeTouche == 40){
-		if(((Number(nbY)) + pas) < 513 && world[posI][posJ+1]!= TileType.WATER){
-			player.style.top = (Number(nbY)) + pas + "px";
-			posJ ++;
+	var codeTouche = event.keyCode;
+	if(codeTouche == 40 || codeTouche == 38 || codeTouche == 37 || codeTouche == 39){
+		var X = player.style.left;
+		var Y = player.style.top;
+		var nbX = X.slice(0,X.length-2);
+		var nbY = Y.slice(0,Y.length-2);
+		playerImg.src = playerSrc;
+		
+		if(codeTouche == 40){
+			if(((Number(nbY)) + pas) < (WORLD_WIDTH*TILE_SIZE) && world[posI][posJ+1]!= TileType.WATER){
+				player.style.top = (Number(nbY)) + pas + "px";
+				posJ ++;
+			}
+			playerImg.src += "link_front_0.png";
 		}
-		playerImg.src += "link_front_0.png";
-	}
-    if(codeTouche == 38){
-		if(((Number(nbY)) - pas) >= 0 && world[posI][posJ-1]!= TileType.WATER){
-			player.style.top = (Number(nbY)) - pas + "px";
-			posJ --;
+		if(codeTouche == 38){
+			if(((Number(nbY)) - pas) >= 0 && world[posI][posJ-1]!= TileType.WATER){
+				player.style.top = (Number(nbY)) - pas + "px";
+				posJ --;
+			}
+			playerImg.src += "link_back_0.png";
 		}
-		playerImg.src += "link_back_0.png";
-	}
-    if(codeTouche == 37){
-		if(((Number(nbX)) - pas) >= 0 && world[posI-1][posJ]!= TileType.WATER){
-			player.style.left = (Number(nbX)) - pas + "px";
-			posI --;
+		if(codeTouche == 37){
+			if(((Number(nbX)) - pas) >= 0 && world[posI-1][posJ]!= TileType.WATER){
+				player.style.left = (Number(nbX)) - pas + "px";
+				posI --;
+			}
+			playerImg.src += "link_left_1.png";
 		}
-		playerImg.src += "link_left_1.png";
-	}
-    if(codeTouche == 39){
-		if(((Number(nbX)) + pas) < 513 && world[posI+1][posJ]!= TileType.WATER){
-			player.style.left = (Number(nbX)) + pas + "px";
-			posI ++;
+		if(codeTouche == 39){
+			if(((Number(nbX)) + pas) < (WORLD_WIDTH*TILE_SIZE)  && world[posI+1][posJ]!= TileType.WATER){
+				player.style.left = (Number(nbX)) + pas + "px";
+				posI ++;
+			}
+			playerImg.src += "link_right_1.png";
 		}
-		playerImg.src += "link_right_1.png";
 	}
 }
