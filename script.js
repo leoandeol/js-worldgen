@@ -7,7 +7,7 @@ const LENGTH = 3;
 const WATER_RATIO = 0.3;
 var T_DYN_WATER = 0;
 const TILE_SIZE = 16;
-const RENDER_SIZE = 10;
+const CAMERA_SIZE = 20;
 
 const TileType = {
     WATER : 0,
