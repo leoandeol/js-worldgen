@@ -8,6 +8,7 @@ const WATER_RATIO = 0.3;
 var T_DYN_WATER = 0;
 const TILE_SIZE = 16;
 const CAMERA_SIZE = 20;
+const POLISH_CYCLES = 1;
 
 const TileType = {
     WATER : 0,
@@ -23,21 +24,21 @@ function rand(low,high){
 //INIT
 function init(){
     jeu = document.getElementById("jeu");
-	var body = document.getElementsByTagName("body")[0];
-	var divPlayer = document.createElement("div");
-	divPlayer.id = "player";
-	var divBoat = document.createElement("div");
-	divBoat.id = "boat";
+    var body = document.getElementsByTagName("body")[0];
+    var divPlayer = document.createElement("div");
+    divPlayer.id = "player";
+    var divBoat = document.createElement("div");
+    divBoat.id = "boat";
     gen();
-	body.appendChild(divPlayer);
-	body.appendChild(divBoat);
-	initPlayer();
-	initBoat();
-	player.playerDOM.style.zIndex = 1;
-	boat.boatDOM.style.zIndex = 2;
+    body.appendChild(divPlayer);
+    body.appendChild(divBoat);
+    initPlayer();
+    initBoat();
+    player.playerDOM.style.zIndex = 1;
+    boat.boatDOM.style.zIndex = 2;
     //render(WORLD_WIDTH);
-    render(RENDER_SIZE);
-	console.log(player.playerDOM);
+    render(CAMERA_SIZE);
+    console.log(player.playerDOM);
 }
 
 //WORLDGEN
@@ -46,6 +47,7 @@ function gen(){
     world = diamondsquare(WORLD_WIDTH);
     world = convert(world, LENGTH,WORLD_WIDTH);
     world = calculateWaterLevel(world,LENGTH,WORLD_WIDTH);
+    world = shape(world,WORLD_WIDTH);
     console.log(world);
 }
 
@@ -191,9 +193,48 @@ function calculateWaterLevel(tab, length,SIZE)
     return tab;
 }
 
+function shape(neew,SIZE)
+{
+	for(var a = 0; a < POLISH_CYCLES; a++){
+		for(var i = 1; i < SIZE-1; i++)
+		{
+			for(var j = 1; j < SIZE-1; j++)
+			{
+				if(neew[i][j]>=T_DYN_WATER)
+				{
+					var count = 0;
+					if(neew[i-1][j]<T_DYN_WATER){count++;}
+					if(neew[i+1][j]<T_DYN_WATER){count++;}
+					if(neew[i][j-1]<T_DYN_WATER){count++;}
+					if(neew[i][j+1]<T_DYN_WATER){count++;}
+					
+					if(count>=3)
+					{
+						neew[i][j]=(neew[i-1][j]+neew[i][j-1]+neew[i+1][j]+neew[i][j+1])/4;
+					}
+				}
+				else if(neew[i][j]<T_DYN_WATER)
+				{
+					var count = 0;
+					if(neew[i-1][j]>=T_DYN_WATER){count++;}
+					if(neew[i+1][j]>=T_DYN_WATER){count++;}
+					if(neew[i][j-1]>=T_DYN_WATER){count++;}
+					if(neew[i][j+1]>=T_DYN_WATER){count++;}
+					
+					if(count>=3)
+					{
+						neew[i][j]=(neew[i-1][j]+neew[i][j-1]+neew[i+1][j]+neew[i][j+1])/4;
+					}
+				}
+			}
+		}
+	}	
+	return neew;
+ }
+
 function render(SIZE){
-    for(var i = (player.posI-(SIZE/2)); i < (player.posI+(SIZE/2)+1); i++){
-		for(var j = (player.posJ-(SIZE/2)); j < (player.posJ+(SIZE/2)+1); j++){
+    for(var i = (player.posI-CAMERA_SIZE)>=0?(player.posI-CAMERA_SIZE):0; i < (player.posI+CAMERA_SIZE+1)<WORLD_WIDTH?(player.posI+CAMERA_SIZE+1):WORLD_WIDTH; i++){
+	for(var j = (player.posJ-CAMERA_SIZE)>=0?(player.posJ-CAMERA_SIZE):0; j < (player.posJ+CAMERA_SIZE+1)<WORLD_WIDTH?(player.posJ+CAMERA_SIZE+1):WORLD_WIDTH; j++){
 			var t = document.createElement("img");
 			var src = "img/";
 			switch(world[i][j]){
@@ -430,7 +471,7 @@ function initPlayer(){
     while(placed==false){
 		var randomI = Math.floor((Math.random() * (WORLD_WIDTH -1)));
 		var randomJ = Math.floor((Math.random() * (WORLD_WIDTH -1)));
-		if(((randomI+(RENDER_SIZE/2)+1) < WORLD_WIDTH) && ((randomJ+(RENDER_SIZE/2)+1) < WORLD_WIDTH) && ((randomI-(RENDER_SIZE/2)) >= 0) && ((randomJ-(RENDER_SIZE/2)) >= 0)){
+		if(((randomI) < WORLD_WIDTH) && ((randomJ) < WORLD_WIDTH) && ((randomI) >= 0) && ((randomJ) >= 0)){
 			if(world[randomI][randomJ] == TileType.GRASS){
 				player = new playerConstructor(playerSrc,randomI,randomJ,16,false,DOM,IMG);
 				player.playerImg.src = player.src+"link_front_0.png";
