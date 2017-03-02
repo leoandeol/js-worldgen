@@ -1,14 +1,18 @@
 //GLOBALS
 var world;
 var jeu;
-const WORLD_WIDTH = 33;
+var body;
+var divPlayer;
+var divBoat;
+var weapon;
+const WORLD_WIDTH = 65;
 const COEFF_SCALE = 1.5;
 const LENGTH = 3;
 const WATER_RATIO = 0.3;
 var T_DYN_WATER = 0;
 const TILE_SIZE = 16;
 const RENDER_SIZE = 10;
-const NPC_NUMBER = 10;
+const NPC_NUMBER = 1;
 var npc_tab = Array(NPC_NUMBER);
 
 const TileType = {
@@ -16,6 +20,13 @@ const TileType = {
     GRASS : 1,
     SAND : 2
 };
+
+// Fonction sleep
+function sleep (time) {
+  return new Promise(
+
+(resolve) => setTimeout(resolve, time));
+}
 
 //Random function between two ints
 function rand(low,high){
@@ -25,10 +36,15 @@ function rand(low,high){
 //INIT
 function init(){
     jeu = document.getElementById("jeu");
-    var body = document.getElementsByTagName("body")[0];
-    var divPlayer = document.createElement("div");
+    body = document.getElementsByTagName("body")[0];
+    weapon = document.createElement("div");
+    weaponImg = document.createElement("img");
+    weapon.appendChild(weaponImg);
+    weapon.id = "weapon";
+    jeu.appendChild(weapon);
+    divPlayer = document.createElement("div");
     divPlayer.id = "player";
-    var divBoat = document.createElement("div");
+    divBoat = document.createElement("div");
     divBoat.id = "boat";
     gen();
     body.appendChild(divPlayer);
@@ -46,6 +62,14 @@ function init(){
     setInterval(npcMoves,1000);
 }
 
+function relancer(){
+    body.removeChild(divPlayer);
+    body.removeChild(divBoat);
+    for(var i = 0; i < NPC_NUMBER; i++){
+	jeu.removeChild(npc_tab[i].npcDOM);
+    }
+    init();
+}
 //WORLDGEN
 function gen(){
     //Fillin
@@ -228,16 +252,61 @@ function render(SIZE){
 
 var player;
 
-function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG){
-    this.src = src;
-    this.initI = initI;
-    this.initJ = initJ;
-    this.posI = initI;
-    this.posJ = initJ;
-    this.pas = pas;
-    this.onBoat = onBoat;
-    this.playerDOM = DOM;
-    this.playerImg = IMG;
+function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
+var player = this;    
+player.src = src;
+    player.initI = initI;
+    player.initJ = initJ;
+    player.posI = initI;
+    player.posJ = initJ;
+    player.pas = pas;
+    player.onBoat = onBoat;
+    player.playerDOM = DOM;
+    player.playerImg = IMG;
+    player.direction = dir;
+    player.compteur = 0;
+    player.canEraseSword = false;
+    
+    // PLAYER'S ATTACK
+    player.attack = function(event){
+	if(event.keyCode == 32){
+	    var weapSrc = "res/spritesheets/link/weapons/";
+	    var atkLength = 4*TILE_SIZE;
+	    switch(player.direction){
+	    case "up":
+		weaponImg.src = weapSrc + "sword_up.png";
+		weapon.style.top =player.posJ*TILE_SIZE - TILE_SIZE + "px";
+		weapon.style.left=player.posI*TILE_SIZE + "px";
+		weapon.style.visibility = "visible";
+		var X = weapon.style.left;
+		var Y = weapon.style.top;
+		var nbX = X.slice(0,X.length-2);
+		var nbY = Y.slice(0,Y.length-2);
+		setInterval(function(){
+		    if(player.compteur<atkLength+1){
+			weapon.style.top = (Number(nbY)) - 8 + "px";
+			player.compteur+=8;
+		    }
+		}, 500);		
+		break;
+	    case "down":
+		divAtk.style.top = player.posJ*TILE_SIZE + TILE_SIZE + "px";
+		divAtk.style.left=player.posI*TILE_SIZE + "px";
+		break;
+	    case "left":
+		divAtk.style.top = player.posJ*TILE_SIZE + "px";
+		divAtk.style.left=player.posI*TILE_SIZE - TILE_SIZE + "px";
+		break;
+	    case "right":
+		divAtk.style.top = player.posJ*TILE_SIZE + "px";
+		divAtk.style.left=player.posI*TILE_SIZE + TILE_SIZE + "px";
+		break;
+	    }
+	    //weapon.visibility = "hidden";
+	    clearInterval();
+	}
+    }    
+    // PLAYER MOTION
     this.move = function(event,boat){
 	var codeTouche = event.keyCode;
 	if(codeTouche == 40 || codeTouche == 38 || codeTouche == 37 || codeTouche == 39){
@@ -250,6 +319,7 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG){
 	    this.playerImg.src = src;
 	    
 	    if(codeTouche == 40){
+		player.direction = "down";
 		for(var i = 0; i < npc_tab.length ; i++){
 		    if(this.posJ+1 == npc_tab[i].npcJ && this.posI == npc_tab[i].npcI){
 			canGo = false;
@@ -262,6 +332,7 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG){
 			  }*/
 			if(this.onBoat == true){
 			    this.onBoat = false;
+			    boat.boatImg.src = boat.src + "boat_front.png";
 			}
 			this.playerDOM.style.top = (Number(nbY)) + this.pas + "px";
 			this.posJ ++;
@@ -290,6 +361,7 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG){
 		this.playerImg.src += "link_front_0.png";
 	    }		
 	    if(codeTouche == 38){
+		player.direction = "up";
 		for(var i = 0; i < npc_tab.length ; i++){
 		    if(this.posJ-1 == npc_tab[i].npcJ && this.posI == npc_tab[i].npcI){
 			canGo = false;
@@ -302,6 +374,7 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG){
 			  }*/
 			if(this.onBoat == true){
 			    this.onBoat = false;
+			    boat.boatImg.src = boat.src + "boat_front.png";
 			}
 			this.playerDOM.style.top = (Number(nbY)) - this.pas + "px";
 			this.posJ --;
@@ -341,6 +414,7 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG){
 		}
 	    }
 	    if(codeTouche == 37){
+		player.direction = "left";
 		for(var i = 0; i < npc_tab.length ; i++){
 		    if(this.posJ == npc_tab[i].npcJ && this.posI-1 == npc_tab[i].npcI){
 			canGo = false;
@@ -353,6 +427,7 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG){
 			  }*/
 			if(this.onBoat == true){
 			    this.onBoat = false;
+			    boat.boatImg.src = boat.src + "boat_front.png";
 			}
 			this.playerDOM.style.left = (Number(nbX)) - this.pas + "px";
 			this.posI --;
@@ -392,6 +467,7 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG){
 		}	
 	    }
 	    if(codeTouche == 39){
+		player.direction = "right";
 		for(var i = 0; i < npc_tab.length ; i++){
 		    if(this.posJ == npc_tab[i].npcJ && this.posI+1 == npc_tab[i].npcI){
 			canGo = false;
@@ -404,6 +480,7 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG){
 			  }*/
 			if(this.onBoat == true){
 			    this.onBoat = false;
+			    boat.boatImg.src = boat.src + "boat_front.png";
 			}
 			this.playerDOM.style.left = (Number(nbX)) + this.pas + "px";
 			this.posI ++;
@@ -459,13 +536,13 @@ function initPlayer(){
 	var randomJ = Math.floor((Math.random() * (WORLD_WIDTH -1)));
 	if(((randomI+(RENDER_SIZE/2)+1) < WORLD_WIDTH) && ((randomJ+(RENDER_SIZE/2)+1) < WORLD_WIDTH) && ((randomI-(RENDER_SIZE/2)) >= 0) && ((randomJ-(RENDER_SIZE/2)) >= 0)){
 	    if(world[randomI][randomJ] == TileType.GRASS){
-		player = new playerConstructor(playerSrc,randomI,randomJ,16,false,DOM,IMG);
+		player = new playerConstructor(playerSrc,randomI,randomJ,16,false,DOM,IMG,"up");
 		player.playerImg.src = player.src+"link_front_0.png";
 		player.playerDOM.appendChild(player.playerImg);
 		placed = true;
 	    }
 	    else if(world[randomI][randomJ] == TileType.SAND){
-		player = new playerConstructor(playerSrc,randomI,randomJ,16,false,DOM,IMG);
+		player = new playerConstructor(playerSrc,randomI,randomJ,16,false,DOM,IMG,"up");
 		player.playerImg.src = player.src+"link_front_0.png";
 		player.playerDOM.appendChild(player.playerImg);
 		placed = true;
@@ -631,7 +708,10 @@ function initBoat(){
 	var randomI = Math.floor((Math.random() * (WORLD_WIDTH -2))+1);
 	var randomJ = Math.floor((Math.random() * (WORLD_WIDTH -2))+1);
 	if(world[randomI][randomJ] == TileType.WATER){
-	    if(world[randomI-1][randomJ] == TileType.GRASS || world[randomI+1][randomJ] == TileType.GRASS || world[randomI][randomJ-1] == TileType.GRASS || world[randomI][randomJ+1] == TileType.GRASS){
+	    if((world[randomI-1][randomJ] == TileType.GRASS && world[randomI+1][randomJ] == TileType.WATER && world[randomI][randomJ-1] == TileType.WATER && world[randomI][randomJ+1] == TileType.WATER )||
+	       (world[randomI+1][randomJ] == TileType.GRASS && world[randomI-1][randomJ] == TileType.WATER && world[randomI][randomJ-1] == TileType.WATER && world[randomI][randomJ+1] == TileType.WATER) ||
+	       (world[randomI][randomJ-1] == TileType.GRASS && world[randomI][randomJ+1] == TileType.WATER && world[randomI-1][randomJ] == TileType.WATER && world[randomI+1][randomJ] == TileType.WATER) || 
+	       (world[randomI][randomJ+1] == TileType.GRASS && world[randomI][randomJ-1] == TileType.WATER && world[randomI-1][randomJ] == TileType.WATER && world[randomI+1][randomJ] == TileType.WATER)){
 		boat = new boatConstructor(boatSrc,randomI,randomJ,DOM,IMG);
 		boat.boatImg.src = boat.src + "boat_front.png";
 		boat.boatDOM.appendChild(boat.boatImg);

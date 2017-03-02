@@ -11,6 +11,16 @@ body {
 	top:0px;
 	left:0px;
 	z-index:1;
+}
+
+#weapon {
+    visibility:hidden;
+    position:absolute;
+    width:16px;
+    height:16px;
+    top:0px;
+    left:0px;
+    z-index:2;
 }	
 
 #boat{
