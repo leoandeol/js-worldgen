@@ -5,7 +5,7 @@
     <title>Genproj</title>
     <link rel="stylesheet" type="text/css" href="style.css">
   </head>
-  <body onload="init();" onkeydown="player.move(event,boat);">
+  <body onload="init();" onkeydown="player.move(event,boat);player.attack(event);">
     <div id="jeu">
     </div>
     <div id="infos">
@@ -13,7 +13,7 @@
     </div>
     <div id="boutons">
       <h3>Actions</h3>
-      <button id="gen">Relancer</button>
+      <button id="gen" onclick="relancer();">Relancer</button>
       <button id="credits">Credits</button>
     </div>
   </body>
