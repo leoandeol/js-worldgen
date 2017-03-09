@@ -23,9 +23,9 @@ const TileType = {
 
 // Fonction sleep
 function sleep (time) {
-  return new Promise(
+    return new Promise(
 
-(resolve) => setTimeout(resolve, time));
+	(resolve) => setTimeout(resolve, time));
 }
 
 //Random function between two ints
@@ -39,7 +39,7 @@ function init(){
     body = document.getElementsByTagName("body")[0];
     weapon = document.createElement("div");
     weaponImg = document.createElement("img");
-	weapon.style.zIndex = 3;
+    weapon.style.zIndex = 3;
     weapon.appendChild(weaponImg);
     weapon.id = "weapon";
     jeu.appendChild(weapon);
@@ -223,28 +223,28 @@ function calculateWaterLevel(tab, length,SIZE)
 }
 
 function render(SIZE){
-    for(var i = 0/*(player.posI-(SIZE/2))*/; i < SIZE/*(player.posI+(SIZE/2)+1)*/; i++){
-		for(var j = 0 /*(player.posJ-(SIZE/2))*/; j < SIZE /*(player.posJ+(SIZE/2)+1)*/; j++){
-			var t = document.createElement("img");
-			var src = "img/";
-			switch(world[i][j]){
-			case TileType.WATER:
-			src+="water";
-			break;
-			case TileType.GRASS:
-			src+="grass";
-			break;
-			case TileType.SAND:
-			src+="sand";
-			break;
-			}
-			src += ".png";
-			t.src = src;
-			t.id = i+'';
-			t.id += j+'';
-			t.style="width:"+(TILE_SIZE)+"px;height:"+(TILE_SIZE)+"+px;position:absolute;margin:0;top:"+(TILE_SIZE*j)+"px;left:"+(TILE_SIZE*i)+"px;";
-			jeu.appendChild(t);
-		}
+    for(var i = (player.posI-RENDER_SIZE)>0?(player.posI-RENDER_SIZE):0; i < ((player.posI+RENDER_SIZE)>=SIZE?SIZE-1:(player.posI+RENDER_SIZE)); i++){
+	for(var j = (player.posJ-RENDER_SIZE)>0?(player.posJ-RENDER_SIZE):0; j < ((player.posJ+RENDER_SIZE)>=SIZE?SIZE-1:(player.posJ+RENDER_SIZE)); j++){
+	    var t = document.createElement("img");
+	    var src = "img/";
+	    switch(world[i][j]){
+	    case TileType.WATER:
+		src+="water";
+		break;
+	    case TileType.GRASS:
+		src+="grass";
+		break;
+	    case TileType.SAND:
+		src+="sand";
+		break;
+	    }
+	    src += ".png";
+	    t.src = src;
+	    t.id = i+'';
+	    t.id += j+'';
+	    t.style="width:"+(TILE_SIZE)+"px;height:"+(TILE_SIZE)+"+px;position:absolute;margin:0;top:"+(TILE_SIZE*j)+"px;left:"+(TILE_SIZE*i)+"px;";
+	    jeu.appendChild(t);
+	}
     }
 }
 
@@ -254,12 +254,12 @@ function render(SIZE){
 var player;
 
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
-var player = this;    
-player.src = src;
+    var player = this;    
+    player.src = src;
     player.initI = initI;
     player.initJ = initJ;
     player.posI = initI;
@@ -304,7 +304,7 @@ player.src = src;
 		break;
 		
 	    }		
-		await sleep(100);		
+	    await sleep(100);		
 	    weapon.style.visibility = "hidden";
 	}
     }    
