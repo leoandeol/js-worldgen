@@ -256,14 +256,18 @@ function render(SIZE){
     player.dom.style.top=(RENDER_SIZE*TILE_SIZE)+"px";
     player.dom.style.left=(RENDER_SIZE*TILE_SIZE)+"px";
 
-    if(boat.posI>=(player.posI-RENDER_SIZE)>0?(player.posI-RENDER_SIZE):0&&
+    if(boat.posI>=((player.posI-RENDER_SIZE)>0?(player.posI-RENDER_SIZE):0)&&
        boat.posI<=((player.posI+RENDER_SIZE)>=SIZE?SIZE-1:(player.posI+RENDER_SIZE))&&
-       boat.posJ>=(player.posJ-RENDER_SIZE)>0?(player.posJ-RENDER_SIZE):0&&
+       boat.posJ>=((player.posJ-RENDER_SIZE)>0?(player.posJ-RENDER_SIZE):0)&&
        boat.posJ<=((player.posJ+RENDER_SIZE)>=SIZE?SIZE-1:(player.posJ+RENDER_SIZE))){
 	console.log("true as fuck");
-	boat.dom.style.visibility="visible";
+	if(!!document.getElementById("boat")){
+	    document.appendChild(boat.dom);
+	}
     } else {
-	boat.dom.style.visibility="hidden";
+	if(document.getElementById("boat")!=null){
+	    document.removeChild(boat.dom);
+	}
     }
 }
 
