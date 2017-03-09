@@ -1,19 +1,21 @@
 //GLOBALS
 var world;
 var jeu;
-var body;
+var tiles;
 var divPlayer;
 var divBoat;
 var weapon;
+var boat;
+var player;
 var score = 0;
-const WORLD_WIDTH = 65;
+const WORLD_WIDTH = 257;
 const COEFF_SCALE = 1.5;
 const LENGTH = 3;
 const WATER_RATIO = 0.3;
 var T_DYN_WATER = 0;
 const TILE_SIZE = 16;
 const RENDER_SIZE = 10;
-const NPC_NUMBER = 10;
+const NPC_NUMBER = 0;
 var npc_tab = Array(NPC_NUMBER);
 
 const TileType = {
@@ -30,10 +32,11 @@ function rand(low,high){
 //INIT
 function init(){
     jeu = document.getElementById("jeu");
-    body = document.getElementsByTagName("body")[0];
+    tiles = document.createElement("div");
+    jeu.appendChild(tiles);
     weapon = document.createElement("div");
     weaponImg = document.createElement("img");
-	weapon.style.zIndex = 3;
+    weapon.style.zIndex = 3;
     weapon.appendChild(weaponImg);
     weapon.id = "weapon";
     jeu.appendChild(weapon);
@@ -42,26 +45,23 @@ function init(){
     divBoat = document.createElement("div");
     divBoat.id = "boat";
     gen();
-    body.appendChild(divPlayer);
-    body.appendChild(divBoat);
+    jeu.appendChild(divPlayer);
+    jeu.appendChild(divBoat);
     initPlayer();
     initBoat();
-    player.playerDOM.style.zIndex = 1;
-    boat.boatDOM.style.zIndex = 2;
+    player.dom.style.zIndex = 1;
+    boat.dom.style.zIndex = 2;
     initNPCS(NPC_NUMBER);
     for(var i = 0; i < NPC_NUMBER; i++){
 	jeu.appendChild(npc_tab[i].npcDOM);
     }
     render(WORLD_WIDTH);
-    //render(RENDER_SIZE);
     setInterval(npcMoves,1000);
 }
 
 function relancer(){
-    body.removeChild(divPlayer);
-    body.removeChild(divBoat);
-    for(var i = 0; i < NPC_NUMBER; i++){
-	jeu.removeChild(npc_tab[i].npcDOM);
+    while (jeu.firstChild) {
+	jeu.removeChild(jeu.firstChild);
     }
     init();
 }
@@ -216,71 +216,77 @@ function calculateWaterLevel(tab, length,SIZE)
     return tab;
 }
 
+function clean_tiles(){
+    while (tiles.firstChild) {
+	tiles.removeChild(tiles.firstChild);
+    }
+}
+
 function render(SIZE){
-    for(var i = 0/*(player.posI-(SIZE/2))*/; i < SIZE/*(player.posI+(SIZE/2)+1)*/; i++){
-		for(var j = 0 /*(player.posJ-(SIZE/2))*/; j < SIZE /*(player.posJ+(SIZE/2)+1)*/; j++){
-			var t = document.createElement("img");
-			var src = "img/";
-			switch(world[i][j]){
-			case TileType.WATER:
-			src+="water";
-			break;
-			case TileType.GRASS:
-			src+="grass";
-			break;
-			case TileType.SAND:
-			src+="sand";
-			break;
-			}
-			src += ".png";
-			t.src = src;
-			t.id = i+'';
-			t.id += j+'';
-			t.style="width:"+(TILE_SIZE)+"px;height:"+(TILE_SIZE)+"+px;position:absolute;margin:0;top:"+(TILE_SIZE*j)+"px;left:"+(TILE_SIZE*i)+"px;";
-			jeu.appendChild(t);
-		}
+    //cleaning
+    clean_tiles();
+
+    //render
+    console.log("début cam : "+(player.posI-RENDER_SIZE)>0?(player.posI-RENDER_SIZE):0+" & fin cam : "+ ((player.posI+RENDER_SIZE)>=SIZE?SIZE-1:(player.posI+RENDER_SIZE)));
+    for(var i = (player.posI-RENDER_SIZE)>0?(player.posI-RENDER_SIZE):0; i < ((player.posI+RENDER_SIZE)>=SIZE?SIZE-1:(player.posI+RENDER_SIZE)); i++){
+	for(var j = (player.posJ-RENDER_SIZE)>0?(player.posJ-RENDER_SIZE):0; j < ((player.posJ+RENDER_SIZE)>=SIZE?SIZE-1:(player.posJ+RENDER_SIZE)); j++){
+	    var t = document.createElement("img");
+	    var src = "img/";
+	    switch(world[i][j]){
+	    case TileType.WATER:
+		src+="water";
+		break;
+	    case TileType.GRASS:
+		src+="grass";
+		break;
+	    case TileType.SAND:
+		src+="sand";
+		break;
+	    }
+	    src += ".png";
+	    t.src = src;
+	    t.id = i+'';
+	    t.id += j+'';
+	    var ii = (player.posI-RENDER_SIZE)>0?(player.posI-RENDER_SIZE):0;
+	    var jj = (player.posJ-RENDER_SIZE)>0?(player.posJ-RENDER_SIZE):0;
+	    t.style="width:"+(TILE_SIZE)+"px;height:"+(TILE_SIZE)+"+px;position:absolute;margin:0;top:"+(TILE_SIZE*(j-jj))+"px;left:"+(TILE_SIZE*(i-ii))+"px;";
+	    tiles.appendChild(t);
+	}
+    }
+    player.dom.style.top=(RENDER_SIZE*TILE_SIZE)+"px";
+    player.dom.style.left=(RENDER_SIZE*TILE_SIZE)+"px";
+
+    if(boat.posI>=(player.posI-RENDER_SIZE)>0?(player.posI-RENDER_SIZE):0&&
+       boat.posI<=((player.posI+RENDER_SIZE)>=SIZE?SIZE-1:(player.posI+RENDER_SIZE))&&
+       boat.posJ>=(player.posJ-RENDER_SIZE)>0?(player.posJ-RENDER_SIZE):0&&
+       boat.posJ<=((player.posJ+RENDER_SIZE)>=SIZE?SIZE-1:(player.posJ+RENDER_SIZE))){
+	console.log("true as fuck");
+	boat.dom.style.visibility="visible";
+    } else {
+	boat.dom.style.visibility="hidden";
     }
 }
 
 
 ////////////////////////////// PLAYER //////////////////////////////
 
-var player;
-
-function sleep(ms) {
-  return new Promise(function(resolve){ setTimeout(resolve, ms)});
-}
-
-
-
-/*function sleep(milliseconds) {
-  var start = new Date().getTime();
-  for (var i = 0; i < 1e7; i++) {
-    if ((new Date().getTime() - start) > milliseconds){
-      break;
-    }
-  }
-}*/
-
-
-
-
 function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
-var player = this;    
-player.src = src;
+    var player = this;    
+    player.src = src;
     player.initI = initI;
     player.initJ = initJ;
     player.posI = initI;
     player.posJ = initJ;
     player.pas = pas;
     player.onBoat = onBoat;
-    player.playerDOM = DOM;
-    player.playerImg = IMG;
+    player.dom = DOM;
+    player.img = IMG;
     player.direction = dir;
     player.compteur = 0;
     player.canEraseSword = false;
     
     // PLAYER'S ATTACK
+
     player.killNpc = function(){
 	for(var i = 0; i < npc_tab.length; i++){
 	    if((npc_tab[i].npcI == player.posI && npc_tab[i].npcJ == this.posJ-1 && this.direction == "up") || (npc_tab[i].npcI == player.posI && npc_tab[i].npcJ == this.posJ+1 && this.direction == "down") ||
@@ -291,7 +297,7 @@ player.src = src;
 	}
     }
 
-    player.attack = function(event, callbackFunction){
+    player.attack = function(event){
 	if(event.keyCode == 32){
 	    var weapSrc = "res/spritesheets/link/weapons/";
 	    var atkLength = 4*TILE_SIZE;
@@ -300,9 +306,9 @@ player.src = src;
 		weaponImg.src = weapSrc + "up.png";
 		weapon.style.top =player.posJ*TILE_SIZE - TILE_SIZE + "px";
 		weapon.style.left=player.posI*TILE_SIZE + "px";
-		player.playerImg.src = player.src + "up_atk.png";
+		player.img.src = player.src + "up_atk.png";
 		setTimeout(function(){
-		    player.playerImg.src = player.src + "link_back_0.png";
+		    player.img.src = player.src + "link_back_0.png";
 		},200)
 		player.killNpc();
 		break;
@@ -310,9 +316,9 @@ player.src = src;
 		weaponImg.src = weapSrc + "down.png";
 		weapon.style.top = player.posJ*TILE_SIZE + TILE_SIZE + "px";
 		weapon.style.left=player.posI*TILE_SIZE + "px";
-		player.playerImg.src = player.src + "down_atk.png";
+		player.img.src = player.src + "down_atk.png";
 		setTimeout(function(){
-		    player.playerImg.src = player.src + "link_front_0.png";
+		    player.img.src = player.src + "link_front_0.png";
 		},200)	
 		player.killNpc();
 		break;
@@ -320,9 +326,9 @@ player.src = src;
 		weaponImg.src = weapSrc + "left.png";
 		weapon.style.top = player.posJ*TILE_SIZE + "px";
 		weapon.style.left=player.posI*TILE_SIZE - TILE_SIZE + "px";
-		player.playerImg.src = player.src + "left_atk.png";
+		player.img.src = player.src + "left_atk.png";
 		setTimeout(function(){
-		    player.playerImg.src = player.src + "link_left_1.png";
+		    player.img.src = player.src + "link_left_1.png";
 		},200)		
 		player.killNpc();
 		break;
@@ -330,9 +336,9 @@ player.src = src;
 		weaponImg.src = weapSrc + "right.png";
 		weapon.style.top = player.posJ*TILE_SIZE + "px";
 		weapon.style.left=player.posI*TILE_SIZE + TILE_SIZE + "px";
-		player.playerImg.src = player.src + "right_atk.png";
+		player.img.src = player.src + "right_atk.png";
 		setTimeout(function(){
-		    player.playerImg.src = player.src + "link_right_1.png";
+		    player.img.src = player.src + "link_right_1.png";
 		},200)
 		player.killNpc();
 		break;		
@@ -345,221 +351,121 @@ player.src = src;
     }    
     // PLAYER MOTION
     this.move = function(event,boat){
-	var codeTouche = event.keyCode;
-	if(codeTouche == 40 || codeTouche == 38 || codeTouche == 37 || codeTouche == 39){
-	    
-	    var X = this.playerDOM.style.left;
-	    var Y = this.playerDOM.style.top;
-	    var nbX = X.slice(0,X.length-2);
-	    var nbY = Y.slice(0,Y.length-2);
-	    var canGo = true;
-	    this.playerImg.src = src;
-	    
-	    if(codeTouche == 40){
+	console.log("x="+player.posI+";y="+player.posJ);
+	var code = event.keyCode;
+	if(code == 40 || code == 38 || code == 37 || code == 39){
+	    if(code == 40){
 		player.direction = "down";
-		for(var i = 0; i < npc_tab.length ; i++){
-		    if(this.posJ+1 == npc_tab[i].npcJ && this.posI == npc_tab[i].npcI){
-			canGo = false;
-		    }
-		}
-		if(canGo && ((Number(nbY)) + this.pas) < (WORLD_WIDTH*TILE_SIZE)){
+		if((player.posJ + this.pas) < (WORLD_WIDTH)){
 		    if(world[this.posI][this.posJ+1]!= TileType.WATER){
-			/*if((((this.posJ+(RENDER_SIZE/2))+1) < WORLD_WIDTH) && (((this.posJ-(RENDER_SIZE/2))+1) > 0)){
-			  moveCam(1,RENDER_SIZE);
-			  }*/
 			if(this.onBoat == true){
 			    this.onBoat = false;
-			    boat.boatImg.src = boat.src + "boat_front.png";
 			}
-			this.playerDOM.style.top = (Number(nbY)) + this.pas + "px";
 			this.posJ ++;
 		    }
 		    else if(world[this.posI][this.posJ+1] == TileType.WATER){
 			if(this.posI == boat.posI && this.posJ+1 == boat.posJ && this.onBoat == false){
-			    /*if((((this.posJ+(RENDER_SIZE/2))+1) < WORLD_WIDTH) && (((this.posJ-(RENDER_SIZE/2))+1) > 0)){
-			      moveCam(1,RENDER_SIZE);
-			      }*/
 			    this.onBoat = true;
-			    this.playerDOM.style.top = (Number(nbY)) + this.pas + "px";
 			    this.posJ ++;
 			}
 			else if(this.onBoat == true){
-			    /*if((((this.posJ+(RENDER_SIZE/2))+1) < WORLD_WIDTH) && (((this.posJ-(RENDER_SIZE/2))+1) > 0)){
-			      moveCam(1,RENDER_SIZE);
-			      }*/
-			    this.playerDOM.style.top = (Number(nbY)) + this.pas + "px";
-			    boat.boatDOM.style.top = (Number(nbY)) + this.pas + "px";
 			    this.posJ ++;
-			    boat.posJ ++;			
-			    boat.boatImg.src = boat.src + "boat_front.png";
+			    boat.posJ ++;
 			}
 		    }
 		}
-		this.playerImg.src += "link_front_0.png";
 	    }		
-	    if(codeTouche == 38){
+	    if(code == 38){
 		player.direction = "up";
-		for(var i = 0; i < npc_tab.length ; i++){
-		    if(this.posJ-1 == npc_tab[i].npcJ && this.posI == npc_tab[i].npcI){
-			canGo = false;
-		    }
-		}
-		if(canGo && ((Number(nbY)) - this.pas) >= 0 ){
+		if((player.posJ - this.pas) >= 0 ){
 		    if(world[this.posI][this.posJ-1]!= TileType.WATER){
-			/*if((((this.posJ-(RENDER_SIZE/2))-1) >= 0) && (((this.posJ+(RENDER_SIZE/2))-1) < WORLD_WIDTH-1)){
-			  moveCam(2,RENDER_SIZE);
-			  }*/
 			if(this.onBoat == true){
 			    this.onBoat = false;
-			    boat.boatImg.src = boat.src + "boat_front.png";
 			}
-			this.playerDOM.style.top = (Number(nbY)) - this.pas + "px";
 			this.posJ --;
-			this.playerImg.src += "link_back_0.png";
 		    }
 		    else if(world[this.posI][this.posJ-1] == TileType.WATER){
 			if(this.posI == boat.posI && this.posJ-1 == boat.posJ && this.onBoat == false){
-			    /*if((((this.posJ-(RENDER_SIZE/2))-1) >= 0) && (((this.posJ+(RENDER_SIZE/2))-1) < WORLD_WIDTH-1)){
-			      moveCam(2,RENDER_SIZE);
-			      }*/
 			    this.onBoat = true;
-			    this.playerDOM.style.top = (Number(nbY)) - this.pas + "px";
 			    this.posJ --;
-			    this.playerImg.src += "link_front_0.png";
 			}
 			else if(this.onBoat == true){
-			    /*if((((this.posJ-(RENDER_SIZE/2))-1) >= 0) && (((this.posJ+(RENDER_SIZE/2))-1) < WORLD_WIDTH-1)){
-			      moveCam(2,RENDER_SIZE);
-			      }*/
-			    this.playerDOM.style.top = (Number(nbY)) - this.pas + "px";
-			    boat.boatDOM.style.top = (Number(nbY)) - this.pas + "px";
 			    this.posJ --;
 			    boat.posJ --;
-			    this.playerImg.src += "link_back_0.png";
-			    boat.boatImg.src = boat.src + "boat_back.png";
-			}
-			else{
-			    this.playerImg.src += "link_back_0.png";
 			}	
-		    }	
-		    else{
-			this.playerImg.src += "link_back_0.png";
 		    }		
 		}
-		else{
-		    this.playerImg.src += "link_back_0.png";
-		}
 	    }
-	    if(codeTouche == 37){
+	    if(code == 37){
 		player.direction = "left";
-		for(var i = 0; i < npc_tab.length ; i++){
-		    if(this.posJ == npc_tab[i].npcJ && this.posI-1 == npc_tab[i].npcI){
-			canGo = false;
-		    }
-		}
-		if(canGo && ((Number(nbX)) - this.pas) >= 0 ){
+		if((player.posI - this.pas) >= 0 ){
 		    if(world[this.posI-1][this.posJ]!= TileType.WATER){
-			/*if((((this.posI-(RENDER_SIZE/2))-1) >= 0) && (((this.posI+(RENDER_SIZE/2))-1) < WORLD_WIDTH-1) && (this.posJ+1+(RENDER_SIZE/2) <= WORLD_WIDTH) && (this.posJ-(RENDER_SIZE/2) >= -1)){
-			  moveCam(4,RENDER_SIZE);
-			  }*/
 			if(this.onBoat == true){
 			    this.onBoat = false;
-			    boat.boatImg.src = boat.src + "boat_front.png";
 			}
-			this.playerDOM.style.left = (Number(nbX)) - this.pas + "px";
 			this.posI --;
-			this.playerImg.src += "link_left_1.png";
 		    }
 		    else if(world[this.posI-1][this.posJ] == TileType.WATER){
 			if(this.posI-1 == boat.posI && this.posJ == boat.posJ && this.onBoat == false){
-			    /*if((((this.posI-(RENDER_SIZE/2))-1) >= 0) && (((this.posI+(RENDER_SIZE/2))-1) < WORLD_WIDTH-1) && (this.posJ+1+(RENDER_SIZE/2) <= WORLD_WIDTH) && (this.posJ-(RENDER_SIZE/2) >= -1)){
-			      moveCam(4,RENDER_SIZE);
-			      }*/
 			    this.onBoat = true;
-			    this.playerDOM.style.left = (Number(nbX)) - this.pas + "px";
 			    this.posI --;
-			    this.playerImg.src += "link_front_0.png";
 			}
 			else if(this.onBoat == true){
-			    /*if((((this.posI-(RENDER_SIZE/2))-1) >= 0) && (((this.posI+(RENDER_SIZE/2))-1) < WORLD_WIDTH-1) && (this.posJ+1+(RENDER_SIZE/2) <= WORLD_WIDTH) && (this.posJ-(RENDER_SIZE/2) >= -1)){
-			      moveCam(4,RENDER_SIZE);
-			      }*/
-			    this.playerDOM.style.left = (Number(nbX)) - this.pas + "px";
-			    boat.boatDOM.style.left = (Number(nbX)) - this.pas + "px";
 			    this.posI --;
 			    boat.posI --;
-			    this.playerImg.src += "link_left_1.png";
-			    boat.boatImg.src = boat.src + "boat_left.png";
-			}
-			else{
-			    this.playerImg.src += "link_left_1.png";
 			}		
-		    }	
-		    else{
-			this.playerImg.src += "link_left_1.png";
 		    }		
-		}
-		else{
-		    this.playerImg.src += "link_left_1.png";
 		}	
 	    }
-	    if(codeTouche == 39){
+	    if(code == 39){
 		player.direction = "right";
-		for(var i = 0; i < npc_tab.length ; i++){
-		    if(this.posJ == npc_tab[i].npcJ && this.posI+1 == npc_tab[i].npcI){
-			canGo = false;
-		    }
-		}
-		if(canGo && ((Number(nbX)) + this.pas) < (WORLD_WIDTH*TILE_SIZE)){
+		if((player.posI + this.pas) < (WORLD_WIDTH*TILE_SIZE)){
 		    if(world[this.posI+1][this.posJ]!= TileType.WATER){
-			/*if((((this.posI+(RENDER_SIZE/2))+1) >= 0) && (((this.posI-(RENDER_SIZE/2))+1) < WORLD_WIDTH-1) && (this.posJ+1+(RENDER_SIZE/2) <= WORLD_WIDTH) && (this.posJ-(RENDER_SIZE/2) >= -1)){
-			  moveCam(3,RENDER_SIZE);
-			  }*/
 			if(this.onBoat == true){
 			    this.onBoat = false;
-			    boat.boatImg.src = boat.src + "boat_front.png";
 			}
-			this.playerDOM.style.left = (Number(nbX)) + this.pas + "px";
 			this.posI ++;
-			this.playerImg.src += "link_right_1.png";
 		    }
 		    else if(world[this.posI+1][this.posJ] == TileType.WATER){
 			if(this.posI+1 == boat.posI && this.posJ == boat.posJ && this.onBoat == false){
-			    /*if((((posI+(RENDER_SIZE/2))+1) < WORLD_WIDTH) && (((posI-(RENDER_SIZE/2))+1) > 0)){
-			      moveCam(3,RENDER_SIZE);
-			      }*/
-			    /*if((((this.posI+(RENDER_SIZE/2))+1) >= 0) && (((this.posI-(RENDER_SIZE/2))+1) < WORLD_WIDTH-1) && (this.posJ+1+(RENDER_SIZE/2) <= WORLD_WIDTH) && (this.posJ-(RENDER_SIZE/2) >= -1)){
-			      moveCam(3,RENDER_SIZE);
-			      }*/
 			    this.onBoat = true;
-			    this.playerDOM.style.left = (Number(nbX)) + this.pas + "px";
 			    this.posI ++;
-			    this.playerImg.src += "link_front_0.png";
 			}
 			else if(this.onBoat == true){
-			    /*if((((this.posI+(RENDER_SIZE/2))+1) >= 0) && (((this.posI-(RENDER_SIZE/2))+1) < WORLD_WIDTH-1) && (this.posJ+1+(RENDER_SIZE/2) <= WORLD_WIDTH) && (this.posJ-(RENDER_SIZE/2) >= -1)){
-			      moveCam(3,RENDER_SIZE);
-			      }*/
-			    this.playerDOM.style.left = (Number(nbX)) + this.pas + "px";
-			    boat.boatDOM.style.left = (Number(nbX)) + this.pas + "px";
 			    this.posI ++;
 			    boat.posI ++;
-			    this.playerImg.src += "link_right_1.png";
-			    boat.boatImg.src = boat.src + "boat_right.png";
 			}
-			else{
-			    this.playerImg.src += "link_right_1.png";
-			}
-		    }
-		    else{
-			this.playerImg.src += "link_right_1.png";
 		    }		
 		}
-		else{
-		    this.playerImg.src += "link_right_1.png";
+	    }
+	    this.img.src = this.src;
+	    if(this.direction==="up"){
+		this.img.src += "link_back_0.png";
+	    } else if(this.direction==="left"){
+		this.img.src += "link_left_1.png";
+	    } else if(this.direction==="right"){
+		this.img.src += "link_right_1.png";
+	    } else if(this.direction==="down"){
+		this.img.src += "link_front_0.png";
+	    } else {
+		console.error("undefined direction");
+	    }
+	    if(this.onBoat){
+		boat.img.src = boat.src
+		if(this.direction==="up"){
+		    boat.img.src += "boat_back.png";
+		} else if(this.direction==="left"){
+		    boat.img.src += "boat_left.png";
+		} else if(this.direction==="right"){
+		    boat.img.src += "boat_right.png";
+		} else if(this.direction==="down"){
+		    boat.img.src += "boat_front.png";
+		} else {
+		    console.error("undefined direction");
 		}
 	    }
 	}
+	render(WORLD_WIDTH);
     }
 }
 
@@ -574,8 +480,8 @@ function initPlayer(){
 	if(((randomI+(RENDER_SIZE/2)+1) < WORLD_WIDTH) && ((randomJ+(RENDER_SIZE/2)+1) < WORLD_WIDTH) && ((randomI-(RENDER_SIZE/2)) >= 0) && ((randomJ-(RENDER_SIZE/2)) >= 0)){
 	    if(world[randomI][randomJ] == TileType.GRASS || world[randomI][randomJ] == TileType.SAND){
 		player = new playerConstructor(playerSrc,randomI,randomJ,16,false,DOM,IMG,"up");
-		player.playerImg.src = player.src+"link_front_0.png";
-		player.playerDOM.appendChild(player.playerImg);
+		player.img.src = player.src+"link_front_0.png";
+		player.dom.appendChild(player.img);
 		placed = true;
 	    }
 	}
@@ -585,140 +491,13 @@ function initPlayer(){
 
 function replace(){
     console.log(player.onBoat);
-    player.playerDOM.style.top = player.initJ*TILE_SIZE + "px";
-    player.playerDOM.style.left= player.initI*TILE_SIZE + "px";
     player.posI = player.initI;
     player.posJ = player.initJ;
 }
 
-function moveCam(dir,SIZE){
-    switch(dir){
-    case 1:
-	var i = (player.posJ-(SIZE/2));
-	var k = (player.posJ+(SIZE/2)+1);
-	for(var j = (player.posI-(SIZE/2)); j < (player.posI+(SIZE/2)+1) ; j++){
-	    var idOldChild = j+''+i;
-	    var oldChild = document.getElementById(idOldChild);
-	    jeu.removeChild(oldChild);
-	    
-	    var idNewChild = j+''+k;			
-	    var newChild  = document.createElement("img");
-	    var src = "img/";
-	    switch(world[j][k]){
-	    case TileType.WATER:
-		src+="water";
-		break;
-	    case TileType.GRASS:
-		src+="grass";
-		break;
-	    case TileType.SAND:
-		src+="sand";
-		break;
-	    }
-	    src += ".png";	
-	    newChild.src = src;
-	    newChild.id += idNewChild;
-	    newChild.style="width:"+(TILE_SIZE)+"px;height:"+(TILE_SIZE)+"+px;position:absolute;margin:0;top:"+(TILE_SIZE*k)+"px;left:"+(TILE_SIZE*j)+"px;";
-	    jeu.appendChild(newChild);
-	}
-	break;
-    case 2:
-	var i = (player.posJ-(SIZE/2));
-	var k = (player.posJ+(SIZE/2)+1);
-	for(var j = (player.posI-(SIZE/2)); j < (player.posI+(SIZE/2)+1) ; j++){
-	    var idOldChild = j+''+(k-1);
-	    var oldChild = document.getElementById(idOldChild);
-	    jeu.removeChild(oldChild);
-	    
-	    var idNewChild = j+''+(i-1);			
-	    var newChild  = document.createElement("img");
-	    var src = "img/";
-	    switch(world[j][i-1]){
-	    case TileType.WATER:
-		src+="water";
-		break;
-	    case TileType.GRASS:
-		src+="grass";
-		break;
-	    case TileType.SAND:
-		src+="sand";
-		break;
-	    }
-	    src += ".png";
-	    newChild.src = src;
-	    newChild.id += idNewChild;
-	    newChild.style="width:"+(TILE_SIZE)+"px;height:"+(TILE_SIZE)+"+px;position:absolute;margin:0;top:"+(TILE_SIZE*(i-1))+"px;left:"+(TILE_SIZE*j)+"px;";
-	    jeu.appendChild(newChild);
-	}	
-	break;
-    case 3:
-	var i = (player.posI-(SIZE/2));
-	var k = (player.posI+(SIZE/2)+1);
-	for(var j = (player.posJ-(SIZE/2)); j < (player.posJ+(SIZE/2)+1) ; j++){
-	    var idOldChild = i+''+j;
-	    var oldChild = document.getElementById(idOldChild);
-	    jeu.removeChild(oldChild);
-	    
-	    var idNewChild = k+''+j;			
-	    var newChild  = document.createElement("img");
-	    var src = "img/";
-	    switch(world[k][j]){
-	    case TileType.WATER:
-		src+="water";
-		break;
-	    case TileType.GRASS:
-		src+="grass";
-		break;
-	    case TileType.SAND:
-		src+="sand";
-		break;
-	    }
-	    src += ".png";
-	    newChild.src = src;
-	    newChild.id += idNewChild;
-	    newChild.style="width:"+(TILE_SIZE)+"px;height:"+(TILE_SIZE)+"+px;position:absolute;margin:0;top:"+(TILE_SIZE*j)+"px;left:"+(TILE_SIZE*k)+"px;";
-	    jeu.appendChild(newChild);
-	}
-	break;
-    case 4:
-	var i = (player.posI-(SIZE/2));
-	var k = (player.posI+(SIZE/2)+1);
-	for(var j = (player.posJ-(SIZE/2)); j < (player.posJ+(SIZE/2)+1) ; j++){
-	    var idOldChild = (k-1)+''+j;
-	    var oldChild = document.getElementById(idOldChild);
-	    jeu.removeChild(oldChild);
-	    
-	    var idNewChild = (i-1)+''+j;			
-	    var newChild  = document.createElement("img");
-	    var src = "img/";
-	    switch(world[i-1][j]){
-	    case TileType.WATER:
-		src+="water";
-		break;
-	    case TileType.GRASS:
-		src+="grass";
-		break;
-	    case TileType.SAND:
-		src+="sand";
-		break;
-	    }
-	    src += ".png";
-	    newChild.src = src;
-	    newChild.id += idNewChild;
-	    newChild.style="width:"+(TILE_SIZE)+"px;height:"+(TILE_SIZE)+"+px;position:absolute;margin:0;top:"+(TILE_SIZE*j)+"px;left:"+(TILE_SIZE*(i-1))+"px;";
-	    jeu.appendChild(newChild);
-	}	
-	break;
-    }	
-}
-
-
 
 ////////////////////////////// BOAT //////////////////////////////
 
-// Var
-
-var boat;
 
 function boatConstructor(src,initI,initJ,DOM,IMG){
     this.src = src;
@@ -726,8 +505,8 @@ function boatConstructor(src,initI,initJ,DOM,IMG){
     this.initJ = initJ;
     this.posI = initI;
     this.posJ = initJ;
-    this.boatDOM = DOM;
-    this.boatImg = IMG;
+    this.dom = DOM;
+    this.img = IMG;
 }
 
 function initBoat(){
@@ -744,8 +523,8 @@ function initBoat(){
 	       (world[randomI][randomJ-1] == TileType.GRASS && world[randomI][randomJ+1] == TileType.WATER && world[randomI-1][randomJ] == TileType.WATER && world[randomI+1][randomJ] == TileType.WATER) || 
 	       (world[randomI][randomJ+1] == TileType.GRASS && world[randomI][randomJ-1] == TileType.WATER && world[randomI-1][randomJ] == TileType.WATER && world[randomI+1][randomJ] == TileType.WATER)){
 		boat = new boatConstructor(boatSrc,randomI,randomJ,DOM,IMG);
-		boat.boatImg.src = boat.src + "boat_front.png";
-		boat.boatDOM.appendChild(boat.boatImg);
+		boat.img.src = boat.src + "boat_front.png";
+		boat.dom.appendChild(boat.img);
 		placed = true;
 	    }
 	}
@@ -754,8 +533,8 @@ function initBoat(){
 }
 
 function replaceBoat(){
-    boat.boatDOM.style.top = boat.initJ*TILE_SIZE + "px";
-    boat.boatDOM.style.left= boat.initI*TILE_SIZE + "px";
+    boat.dom.style.top = boat.initJ*TILE_SIZE + "px";
+    boat.dom.style.left= boat.initI*TILE_SIZE + "px";
     boat.posI = boat.initI;
     boat.posJ = boat.initJ;
 }
@@ -788,7 +567,7 @@ function npcConstructor(id, src, I, J,DOM,IMG,pas){
 		}
 	    }
 	    if(world[this.npcI][this.npcJ-1]!= TileType.WATER && this.npcJ-1 > 0 && canGo){
-		this.npcDOM.style.top = (Number(nbY)) - this.pas + "px";
+		this.npcDOM.style.top = player.posJ - this.pas + "px";
 		this.npcJ --;
 		this.npcImg.src = this.src + "npc_back.png"
 	    }
@@ -803,7 +582,7 @@ function npcConstructor(id, src, I, J,DOM,IMG,pas){
 		}
 	    }
 	    if(world[this.npcI][this.npcJ+1] != TileType.WATER && this.npcJ+1 < WORLD_WIDTH-1 && canGo){
-		this.npcDOM.style.top = (Number(nbY)) + this.pas + "px";
+		this.npcDOM.style.top = player.posJ + this.pas + "px";
 		this.npcJ ++;
 		this.npcImg.src = this.src + "npc_front.png"
 	    }
@@ -818,7 +597,7 @@ function npcConstructor(id, src, I, J,DOM,IMG,pas){
 		}
 	    }
 	    if(world[this.npcI-1][this.npcJ] != TileType.WATER && this.npcI-1 > 0 && canGo){
-		this.npcDOM.style.left = (Number(nbX)) - this.pas + "px";
+		this.npcDOM.style.left = player.posI - this.pas + "px";
 		this.npcI --;
 		this.npcImg.src = this.src + "npc_left.png"
 	    }
@@ -833,7 +612,7 @@ function npcConstructor(id, src, I, J,DOM,IMG,pas){
 		}
 	    }
 	    if(world[this.npcI+1][this.npcJ] != TileType.WATER && this.npcI+1 < WORLD_WIDTH && canGo){
-		this.npcDOM.style.left = (Number(nbX)) + this.pas + "px";
+		this.npcDOM.style.left = player.posI + this.pas + "px";
 		this.npcI ++;
 		this.npcImg.src = this.src + "npc_right.png"
 	    }
