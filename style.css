@@ -14,7 +14,6 @@ body {
 }
 
 #weapon {
-    visibility:hidden;
     position:absolute;
     width:16px;
     height:16px;

@@ -5,6 +5,7 @@ var body;
 var divPlayer;
 var divBoat;
 var weapon;
+var score = 0;
 const WORLD_WIDTH = 65;
 const COEFF_SCALE = 1.5;
 const LENGTH = 3;
@@ -12,7 +13,7 @@ const WATER_RATIO = 0.3;
 var T_DYN_WATER = 0;
 const TILE_SIZE = 16;
 const RENDER_SIZE = 10;
-const NPC_NUMBER = 100;
+const NPC_NUMBER = 10;
 var npc_tab = Array(NPC_NUMBER);
 
 const TileType = {
@@ -20,13 +21,6 @@ const TileType = {
     GRASS : 1,
     SAND : 2
 };
-
-// Fonction sleep
-function sleep (time) {
-  return new Promise(
-
-(resolve) => setTimeout(resolve, time));
-}
 
 //Random function between two ints
 function rand(low,high){
@@ -60,7 +54,7 @@ function init(){
     }
     render(WORLD_WIDTH);
     //render(RENDER_SIZE);
-    setInterval(npcMoves,10);
+    setInterval(npcMoves,1000);
 }
 
 function relancer(){
@@ -254,8 +248,22 @@ function render(SIZE){
 var player;
 
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise(function(resolve){ setTimeout(resolve, ms)});
 }
+
+
+
+/*function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
+}*/
+
+
+
 
 function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
 var player = this;    
@@ -273,39 +281,66 @@ player.src = src;
     player.canEraseSword = false;
     
     // PLAYER'S ATTACK
-    player.attack = async function(event){
+    player.killNpc = function(){
+	for(var i = 0; i < npc_tab.length; i++){
+	    if((npc_tab[i].npcI == player.posI && npc_tab[i].npcJ == this.posJ-1 && this.direction == "up") || (npc_tab[i].npcI == player.posI && npc_tab[i].npcJ == this.posJ+1 && this.direction == "down") ||
+	      (npc_tab[i].npcI == player.posI-1 && npc_tab[i].npcJ == this.posJ && this.direction == "left") || (npc_tab[i].npcI == player.posI+1 && npc_tab[i].npcJ == this.posJ && this.direction == "right")){
+		score++;
+		jeu.removeChild(npc_tab[i].npcDOM);
+	    }
+	}
+    }
+
+    player.attack = function(event, callbackFunction){
 	if(event.keyCode == 32){
 	    var weapSrc = "res/spritesheets/link/weapons/";
 	    var atkLength = 4*TILE_SIZE;
 	    switch(player.direction){
 	    case "up":
 		weaponImg.src = weapSrc + "up.png";
-		weapon.style.visibility = "visible";
 		weapon.style.top =player.posJ*TILE_SIZE - TILE_SIZE + "px";
 		weapon.style.left=player.posI*TILE_SIZE + "px";
+		player.playerImg.src = player.src + "up_atk.png";
+		setTimeout(function(){
+		    player.playerImg.src = player.src + "link_back_0.png";
+		},200)
+		player.killNpc();
 		break;
 	    case "down":
 		weaponImg.src = weapSrc + "down.png";
-		weapon.style.visibility = "visible";
 		weapon.style.top = player.posJ*TILE_SIZE + TILE_SIZE + "px";
 		weapon.style.left=player.posI*TILE_SIZE + "px";
+		player.playerImg.src = player.src + "down_atk.png";
+		setTimeout(function(){
+		    player.playerImg.src = player.src + "link_front_0.png";
+		},200)	
+		player.killNpc();
 		break;
 	    case "left":
 		weaponImg.src = weapSrc + "left.png";
-		weapon.style.visibility = "visible";
 		weapon.style.top = player.posJ*TILE_SIZE + "px";
 		weapon.style.left=player.posI*TILE_SIZE - TILE_SIZE + "px";
+		player.playerImg.src = player.src + "left_atk.png";
+		setTimeout(function(){
+		    player.playerImg.src = player.src + "link_left_1.png";
+		},200)		
+		player.killNpc();
 		break;
 	    case "right":
 		weaponImg.src = weapSrc + "right.png";
-		weapon.style.visibility = "visible";
 		weapon.style.top = player.posJ*TILE_SIZE + "px";
 		weapon.style.left=player.posI*TILE_SIZE + TILE_SIZE + "px";
-		break;
-		
-	    }		
-		await sleep(100);		
-	    weapon.style.visibility = "hidden";
+		player.playerImg.src = player.src + "right_atk.png";
+		setTimeout(function(){
+		    player.playerImg.src = player.src + "link_right_1.png";
+		},200)
+		player.killNpc();
+		break;		
+	    }
+	    weapon.style.visibility = "visible";
+	    setTimeout(function(){
+		weapon.style.visibility = "hidden";
+	    },200)
 	}
     }    
     // PLAYER MOTION
@@ -355,7 +390,7 @@ player.src = src;
 			    this.playerDOM.style.top = (Number(nbY)) + this.pas + "px";
 			    boat.boatDOM.style.top = (Number(nbY)) + this.pas + "px";
 			    this.posJ ++;
-			    boat.posJ ++;						
+			    boat.posJ ++;			
 			    boat.boatImg.src = boat.src + "boat_front.png";
 			}
 		    }
@@ -537,13 +572,7 @@ function initPlayer(){
 	var randomI = Math.floor((Math.random() * (WORLD_WIDTH -1)));
 	var randomJ = Math.floor((Math.random() * (WORLD_WIDTH -1)));
 	if(((randomI+(RENDER_SIZE/2)+1) < WORLD_WIDTH) && ((randomJ+(RENDER_SIZE/2)+1) < WORLD_WIDTH) && ((randomI-(RENDER_SIZE/2)) >= 0) && ((randomJ-(RENDER_SIZE/2)) >= 0)){
-	    if(world[randomI][randomJ] == TileType.GRASS){
-		player = new playerConstructor(playerSrc,randomI,randomJ,16,false,DOM,IMG,"up");
-		player.playerImg.src = player.src+"link_front_0.png";
-		player.playerDOM.appendChild(player.playerImg);
-		placed = true;
-	    }
-	    else if(world[randomI][randomJ] == TileType.SAND){
+	    if(world[randomI][randomJ] == TileType.GRASS || world[randomI][randomJ] == TileType.SAND){
 		player = new playerConstructor(playerSrc,randomI,randomJ,16,false,DOM,IMG,"up");
 		player.playerImg.src = player.src+"link_front_0.png";
 		player.playerDOM.appendChild(player.playerImg);
