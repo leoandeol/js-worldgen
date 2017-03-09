@@ -53,8 +53,8 @@ function init(){
     jeu.appendChild(divBoat);
     initPlayer();
     initBoat();
-    player.playerDOM.style.zIndex = 1;
-    boat.boatDOM.style.zIndex = 2;
+    player.dom.style.zIndex = 1;
+    boat.dom.style.zIndex = 2;
     initNPCS(NPC_NUMBER);
     for(var i = 0; i < NPC_NUMBER; i++){
 	jeu.appendChild(npc_tab[i].npcDOM);
@@ -220,7 +220,17 @@ function calculateWaterLevel(tab, length,SIZE)
     return tab;
 }
 
+function clean_tiles(){
+    while (tiles.firstChild) {
+	tiles.removeChild(tiles.firstChild);
+    }
+}
+
 function render(SIZE){
+    //cleaning
+    clean_tiles();
+
+    //render
     console.log("début cam : "+(player.posI-RENDER_SIZE)>0?(player.posI-RENDER_SIZE):0+" & fin cam : "+ ((player.posI+RENDER_SIZE)>=SIZE?SIZE-1:(player.posI+RENDER_SIZE)));
     for(var i = (player.posI-RENDER_SIZE)>0?(player.posI-RENDER_SIZE):0; i < ((player.posI+RENDER_SIZE)>=SIZE?SIZE-1:(player.posI+RENDER_SIZE)); i++){
 	for(var j = (player.posJ-RENDER_SIZE)>0?(player.posJ-RENDER_SIZE):0; j < ((player.posJ+RENDER_SIZE)>=SIZE?SIZE-1:(player.posJ+RENDER_SIZE)); j++){
@@ -247,8 +257,18 @@ function render(SIZE){
 	    tiles.appendChild(t);
 	}
     }
-    player.playerDOM.style.top=(RENDER_SIZE*TILE_SIZE)+"px";
-    player.playerDOM.style.left=(RENDER_SIZE*TILE_SIZE)+"px";
+    player.dom.style.top=(RENDER_SIZE*TILE_SIZE)+"px";
+    player.dom.style.left=(RENDER_SIZE*TILE_SIZE)+"px";
+
+    if(boat.posI>=(player.posI-RENDER_SIZE)>0?(player.posI-RENDER_SIZE):0&&
+       boat.posI<=((player.posI+RENDER_SIZE)>=SIZE?SIZE-1:(player.posI+RENDER_SIZE))&&
+       boat.posJ>=(player.posJ-RENDER_SIZE)>0?(player.posJ-RENDER_SIZE):0&&
+       boat.posJ<=((player.posJ+RENDER_SIZE)>=SIZE?SIZE-1:(player.posJ+RENDER_SIZE))){
+	console.log("true as fuck");
+	boat.dom.style.visibility="visible";
+    } else {
+	boat.dom.style.visibility="hidden";
+    }
 }
 
 
@@ -269,7 +289,7 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
     player.posJ = initJ;
     player.pas = pas;
     player.onBoat = onBoat;
-    player.playerDOM = DOM;
+    player.dom = DOM;
     player.img = IMG;
     player.direction = dir;
     player.compteur = 0;
@@ -316,21 +336,12 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
 	console.log("x="+player.posI+";y="+player.posJ);
 	var code = event.keyCode;
 	if(code == 40 || code == 38 || code == 37 || code == 39){
-	    this.img.src = src;
-	    var canGo = true;
-	    
 	    if(code == 40){
 		player.direction = "down";
-		for(var i = 0; i < npc_tab.length ; i++){
-		    if(this.posJ+1 == npc_tab[i].npcJ && this.posI == npc_tab[i].npcI){
-			canGo = false;
-		    }
-		}
-		if(canGo && (player.posJ + this.pas) < (WORLD_WIDTH)){
+		if((player.posJ + this.pas) < (WORLD_WIDTH)){
 		    if(world[this.posI][this.posJ+1]!= TileType.WATER){
 			if(this.onBoat == true){
 			    this.onBoat = false;
-			    boat.boatImg.src = boat.src + "boat_front.png";
 			}
 			this.posJ ++;
 		    }
@@ -341,24 +352,17 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
 			}
 			else if(this.onBoat == true){
 			    this.posJ ++;
-			    boat.posJ ++;						
-			    boat.boatImg.src = boat.src + "boat_front.png";
+			    boat.posJ ++;				
 			}
 		    }
 		}
 	    }		
 	    if(code == 38){
 		player.direction = "up";
-		for(var i = 0; i < npc_tab.length ; i++){
-		    if(this.posJ-1 == npc_tab[i].npcJ && this.posI == npc_tab[i].npcI){
-			canGo = false;
-		    }
-		}
-		if(canGo && (player.posJ - this.pas) >= 0 ){
+		if((player.posJ - this.pas) >= 0 ){
 		    if(world[this.posI][this.posJ-1]!= TileType.WATER){
 			if(this.onBoat == true){
 			    this.onBoat = false;
-			    boat.boatImg.src = boat.src + "boat_front.png";
 			}
 			this.posJ --;
 		    }
@@ -370,23 +374,16 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
 			else if(this.onBoat == true){
 			    this.posJ --;
 			    boat.posJ --;
-			    boat.boatImg.src = boat.src + "boat_back.png";
 			}	
 		    }		
 		}
 	    }
 	    if(code == 37){
 		player.direction = "left";
-		for(var i = 0; i < npc_tab.length ; i++){
-		    if(this.posJ == npc_tab[i].npcJ && this.posI-1 == npc_tab[i].npcI){
-			canGo = false;
-		    }
-		}
-		if(canGo && (player.posI - this.pas) >= 0 ){
+		if((player.posI - this.pas) >= 0 ){
 		    if(world[this.posI-1][this.posJ]!= TileType.WATER){
 			if(this.onBoat == true){
 			    this.onBoat = false;
-			    boat.boatImg.src = boat.src + "boat_front.png";
 			}
 			this.posI --;
 		    }
@@ -398,19 +395,13 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
 			else if(this.onBoat == true){
 			    this.posI --;
 			    boat.posI --;
-			    boat.boatImg.src = boat.src + "boat_left.png";
 			}		
 		    }		
 		}	
 	    }
 	    if(code == 39){
 		player.direction = "right";
-		for(var i = 0; i < npc_tab.length ; i++){
-		    if(this.posJ == npc_tab[i].npcJ && this.posI+1 == npc_tab[i].npcI){
-			canGo = false;
-		    }
-		}
-		if(canGo && (player.posI + this.pas) < (WORLD_WIDTH*TILE_SIZE)){
+		if((player.posI + this.pas) < (WORLD_WIDTH*TILE_SIZE)){
 		    if(world[this.posI+1][this.posJ]!= TileType.WATER){
 			if(this.onBoat == true){
 			    this.onBoat = false;
@@ -425,12 +416,11 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
 			else if(this.onBoat == true){
 			    this.posI ++;
 			    boat.posI ++;
-			    boat.boatImg.src = boat.src + "boat_right.png";
 			}
 		    }		
 		}
 	    }
-	    console.log("direction:"+this.direction);
+	    this.img.src = this.src;
 	    if(this.direction==="up"){
 		this.img.src += "link_back_0.png";
 	    } else if(this.direction==="left"){
@@ -442,7 +432,20 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
 	    } else {
 		console.error("undefined direction");
 	    }
-	    console.log("src="+this.img.src);
+	    if(this.onBoat){
+		boat.img.src = boat.src
+		if(this.direction==="up"){
+		    boat.img.src += "boat_back.png";
+		} else if(this.direction==="left"){
+		    boat.img.src += "boat_left.png";
+		} else if(this.direction==="right"){
+		    boat.img.src += "boat_right.png";
+		} else if(this.direction==="down"){
+		    boat.img.src += "boat_front.png";
+		} else {
+		    console.error("undefined direction");
+		}
+	    }
 	}
 	render(WORLD_WIDTH);
     }
@@ -460,13 +463,13 @@ function initPlayer(){
 	    if(world[randomI][randomJ] == TileType.GRASS){
 		player = new playerConstructor(playerSrc,randomI,randomJ,1,false,DOM,IMG,"up");
 		player.img.src = player.src+"link_front_0.png";
-		player.playerDOM.appendChild(player.img);
+		player.dom.appendChild(player.img);
 		placed = true;
 	    }
 	    else if(world[randomI][randomJ] == TileType.SAND){
 		player = new playerConstructor(playerSrc,randomI,randomJ,1,false,DOM,IMG,"up");
 		player.img.src = player.src+"link_front_0.png";
-		player.playerDOM.appendChild(player.img);
+		player.dom.appendChild(player.img);
 		placed = true;
 	    }
 	}
@@ -493,8 +496,8 @@ function boatConstructor(src,initI,initJ,DOM,IMG){
     this.initJ = initJ;
     this.posI = initI;
     this.posJ = initJ;
-    this.boatDOM = DOM;
-    this.boatImg = IMG;
+    this.dom = DOM;
+    this.img = IMG;
 }
 
 function initBoat(){
@@ -511,8 +514,8 @@ function initBoat(){
 	       (world[randomI][randomJ-1] == TileType.GRASS && world[randomI][randomJ+1] == TileType.WATER && world[randomI-1][randomJ] == TileType.WATER && world[randomI+1][randomJ] == TileType.WATER) || 
 	       (world[randomI][randomJ+1] == TileType.GRASS && world[randomI][randomJ-1] == TileType.WATER && world[randomI-1][randomJ] == TileType.WATER && world[randomI+1][randomJ] == TileType.WATER)){
 		boat = new boatConstructor(boatSrc,randomI,randomJ,DOM,IMG);
-		boat.boatImg.src = boat.src + "boat_front.png";
-		boat.boatDOM.appendChild(boat.boatImg);
+		boat.img.src = boat.src + "boat_front.png";
+		boat.dom.appendChild(boat.img);
 		placed = true;
 	    }
 	}
@@ -521,8 +524,8 @@ function initBoat(){
 }
 
 function replaceBoat(){
-    boat.boatDOM.style.top = boat.initJ*TILE_SIZE + "px";
-    boat.boatDOM.style.left= boat.initI*TILE_SIZE + "px";
+    boat.dom.style.top = boat.initJ*TILE_SIZE + "px";
+    boat.dom.style.left= boat.initI*TILE_SIZE + "px";
     boat.posI = boat.initI;
     boat.posJ = boat.initJ;
 }
