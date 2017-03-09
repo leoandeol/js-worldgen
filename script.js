@@ -8,7 +8,7 @@ var weapon;
 var boat;
 var player;
 var score = 0;
-const WORLD_WIDTH = 257;
+const WORLD_WIDTH = 65;
 const COEFF_SCALE = 1.5;
 const LENGTH = 3;
 const WATER_RATIO = 0.3;
@@ -300,12 +300,11 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
     player.attack = function(event){
 	if(event.keyCode == 32){
 	    var weapSrc = "res/spritesheets/link/weapons/";
-	    var atkLength = 4*TILE_SIZE;
 	    switch(player.direction){
 	    case "up":
 		weaponImg.src = weapSrc + "up.png";
-		weapon.style.top =player.posJ*TILE_SIZE - TILE_SIZE + "px";
-		weapon.style.left=player.posI*TILE_SIZE + "px";
+		weapon.style.top =player.posJ*TILE_SIZE - TILE_SIZE - RENDER_SIZE*TILE_SIZE + "px";
+		weapon.style.left=player.posI*TILE_SIZE - RENDER_SIZE*TILE_SIZE + "px";
 		player.img.src = player.src + "up_atk.png";
 		setTimeout(function(){
 		    player.img.src = player.src + "link_back_0.png";
@@ -315,7 +314,7 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
 	    case "down":
 		weaponImg.src = weapSrc + "down.png";
 		weapon.style.top = player.posJ*TILE_SIZE + TILE_SIZE + "px";
-		weapon.style.left=player.posI*TILE_SIZE + "px";
+		weapon.style.left=player.posI*TILE_SIZE - RENDER_SIZE*TILE_SIZE + "px";
 		player.img.src = player.src + "down_atk.png";
 		setTimeout(function(){
 		    player.img.src = player.src + "link_front_0.png";
@@ -324,8 +323,8 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
 		break;
 	    case "left":
 		weaponImg.src = weapSrc + "left.png";
-		weapon.style.top = player.posJ*TILE_SIZE + "px";
-		weapon.style.left=player.posI*TILE_SIZE - TILE_SIZE + "px";
+		weapon.style.top = player.posJ*TILE_SIZE - RENDER_SIZE*TILE_SIZE + "px" ;
+		weapon.style.left=player.posI*TILE_SIZE - RENDER_SIZE*TILE_SIZE - TILE_SIZE + "px";
 		player.img.src = player.src + "left_atk.png";
 		setTimeout(function(){
 		    player.img.src = player.src + "link_left_1.png";
