@@ -60,7 +60,7 @@ function init(){
     }
     render(WORLD_WIDTH);
     //render(RENDER_SIZE);
-    setInterval(npcMoves,10);
+    setInterval(npcMoves,1000);
 }
 
 function relancer(){
@@ -242,7 +242,9 @@ function render(SIZE){
 	    t.src = src;
 	    t.id = i+'';
 	    t.id += j+'';
-	    t.style="width:"+(TILE_SIZE)+"px;height:"+(TILE_SIZE)+"+px;position:absolute;margin:0;top:"+(TILE_SIZE*j)+"px;left:"+(TILE_SIZE*i)+"px;";
+	    var ii = (player.posI-RENDER_SIZE)>0?(player.posI-RENDER_SIZE):0;
+	    var jj = (player.posJ-RENDER_SIZE)>0?(player.posJ-RENDER_SIZE):0;
+	    t.style="width:"+(TILE_SIZE)+"px;height:"+(TILE_SIZE)+"+px;position:absolute;margin:0;top:"+(TILE_SIZE*(j-jj))+"px;left:"+(TILE_SIZE*(i-ii))+"px;";
 	    jeu.appendChild(t);
 	}
     }
@@ -252,10 +254,10 @@ function render(SIZE){
 ////////////////////////////// PLAYER //////////////////////////////
 
 var player;
-
+/*
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
-}
+}*/
 
 function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
     var player = this;    
@@ -273,7 +275,7 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
     player.canEraseSword = false;
     
     // PLAYER'S ATTACK
-    player.attack = async function(event){
+    player.attack = function(event){
 	if(event.keyCode == 32){
 	    var weapSrc = "res/spritesheets/link/weapons/";
 	    var atkLength = 4*TILE_SIZE;
@@ -304,7 +306,7 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
 		break;
 		
 	    }		
-	    await sleep(100);		
+	    //await sleep(100);		
 	    weapon.style.visibility = "hidden";
 	}
     }    
@@ -329,9 +331,6 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
 		}
 		if(canGo && ((Number(nbY)) + this.pas) < (WORLD_WIDTH*TILE_SIZE)){
 		    if(world[this.posI][this.posJ+1]!= TileType.WATER){
-			/*if((((this.posJ+(RENDER_SIZE/2))+1) < WORLD_WIDTH) && (((this.posJ-(RENDER_SIZE/2))+1) > 0)){
-			  moveCam(1,RENDER_SIZE);
-			  }*/
 			if(this.onBoat == true){
 			    this.onBoat = false;
 			    boat.boatImg.src = boat.src + "boat_front.png";
@@ -341,17 +340,11 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
 		    }
 		    else if(world[this.posI][this.posJ+1] == TileType.WATER){
 			if(this.posI == boat.posI && this.posJ+1 == boat.posJ && this.onBoat == false){
-			    /*if((((this.posJ+(RENDER_SIZE/2))+1) < WORLD_WIDTH) && (((this.posJ-(RENDER_SIZE/2))+1) > 0)){
-			      moveCam(1,RENDER_SIZE);
-			      }*/
 			    this.onBoat = true;
 			    this.playerDOM.style.top = (Number(nbY)) + this.pas + "px";
 			    this.posJ ++;
 			}
 			else if(this.onBoat == true){
-			    /*if((((this.posJ+(RENDER_SIZE/2))+1) < WORLD_WIDTH) && (((this.posJ-(RENDER_SIZE/2))+1) > 0)){
-			      moveCam(1,RENDER_SIZE);
-			      }*/
 			    this.playerDOM.style.top = (Number(nbY)) + this.pas + "px";
 			    boat.boatDOM.style.top = (Number(nbY)) + this.pas + "px";
 			    this.posJ ++;
@@ -371,9 +364,6 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
 		}
 		if(canGo && ((Number(nbY)) - this.pas) >= 0 ){
 		    if(world[this.posI][this.posJ-1]!= TileType.WATER){
-			/*if((((this.posJ-(RENDER_SIZE/2))-1) >= 0) && (((this.posJ+(RENDER_SIZE/2))-1) < WORLD_WIDTH-1)){
-			  moveCam(2,RENDER_SIZE);
-			  }*/
 			if(this.onBoat == true){
 			    this.onBoat = false;
 			    boat.boatImg.src = boat.src + "boat_front.png";
@@ -384,18 +374,12 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
 		    }
 		    else if(world[this.posI][this.posJ-1] == TileType.WATER){
 			if(this.posI == boat.posI && this.posJ-1 == boat.posJ && this.onBoat == false){
-			    /*if((((this.posJ-(RENDER_SIZE/2))-1) >= 0) && (((this.posJ+(RENDER_SIZE/2))-1) < WORLD_WIDTH-1)){
-			      moveCam(2,RENDER_SIZE);
-			      }*/
 			    this.onBoat = true;
 			    this.playerDOM.style.top = (Number(nbY)) - this.pas + "px";
 			    this.posJ --;
 			    this.playerImg.src += "link_front_0.png";
 			}
 			else if(this.onBoat == true){
-			    /*if((((this.posJ-(RENDER_SIZE/2))-1) >= 0) && (((this.posJ+(RENDER_SIZE/2))-1) < WORLD_WIDTH-1)){
-			      moveCam(2,RENDER_SIZE);
-			      }*/
 			    this.playerDOM.style.top = (Number(nbY)) - this.pas + "px";
 			    boat.boatDOM.style.top = (Number(nbY)) - this.pas + "px";
 			    this.posJ --;
