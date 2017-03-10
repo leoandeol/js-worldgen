@@ -34,12 +34,6 @@ function init(){
     jeu = document.getElementById("jeu");
     tiles = document.createElement("div");
     jeu.appendChild(tiles);
-    weapon = document.createElement("div");
-    weaponImg = document.createElement("img");
-    weapon.style.zIndex = 3;
-    weapon.appendChild(weaponImg);
-    weapon.id = "weapon";
-    jeu.appendChild(weapon);
     divPlayer = document.createElement("div");
     divPlayer.id = "player";
     divBoat = document.createElement("div");
@@ -261,20 +255,38 @@ function render(SIZE){
        boat.posJ>=((player.posJ-RENDER_SIZE)>0?(player.posJ-RENDER_SIZE):0)&&
        boat.posJ<=((player.posJ+RENDER_SIZE)>=SIZE?SIZE-1:(player.posJ+RENDER_SIZE))){
 	console.log("true as fuck");
-	if(!!document.getElementById("boat")){
+	/*if(!!document.getElementById("boat")){
 	    document.appendChild(boat.dom);
 	}
     } else {
 	if(document.getElementById("boat")!=null){
 	    document.removeChild(boat.dom);
-	}
+	}*/
     }
 }
 
 
 ////////////////////////////// PLAYER //////////////////////////////
 
-function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
+// ARME
+
+function weaponConstructor(initI,initJ){
+    this.src = "res/spritesheets/link/weapons/";
+    this.posI = initI;
+    this.posJ = initJ;
+    this.dom;
+    this.img;
+
+    this.init = function(){
+	this.dom = document.createElement("img");
+	this.img = document.createElement("img");
+	this.dom.style.zIndex = 3;
+	this.dom.appendChild(this.img);
+	this.dom.id = "weapon";
+    }
+}
+
+function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir,weapon){
     var player = this;    
     player.src = src;
     player.initI = initI;
@@ -288,7 +300,8 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
     player.direction = dir;
     player.compteur = 0;
     player.canEraseSword = false;
-    
+    player.sword = weapon;
+
     // PLAYER'S ATTACK
 
     player.killNpc = function(){
@@ -306,9 +319,9 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
 	    var weapSrc = "res/spritesheets/link/weapons/";
 	    switch(player.direction){
 	    case "up":
-		weaponImg.src = weapSrc + "up.png";
-		weapon.style.top =player.posJ*TILE_SIZE - TILE_SIZE - RENDER_SIZE*TILE_SIZE + "px";
-		weapon.style.left=player.posI*TILE_SIZE - RENDER_SIZE*TILE_SIZE + "px";
+		player.sword.img.src = player.sword.src + "up.png";
+		player.sword.dom.style.top =player.posJ*TILE_SIZE - TILE_SIZE - RENDER_SIZE*TILE_SIZE + "px";
+		player.sword.dom.style.left=player.posI*TILE_SIZE - RENDER_SIZE*TILE_SIZE + "px";
 		player.img.src = player.src + "up_atk.png";
 		setTimeout(function(){
 		    player.img.src = player.src + "link_back_0.png";
@@ -316,9 +329,9 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
 		player.killNpc();
 		break;
 	    case "down":
-		weaponImg.src = weapSrc + "down.png";
-		weapon.style.top = player.posJ*TILE_SIZE + TILE_SIZE + "px";
-		weapon.style.left=player.posI*TILE_SIZE - RENDER_SIZE*TILE_SIZE + "px";
+		player.sword.img.src = player.sword.src + "down.png";
+		player.sword.dom.style.top = player.posJ*TILE_SIZE + TILE_SIZE + "px";
+		player.sword.dom.style.left= player.posI*TILE_SIZE - RENDER_SIZE*TILE_SIZE + "px";
 		player.img.src = player.src + "down_atk.png";
 		setTimeout(function(){
 		    player.img.src = player.src + "link_front_0.png";
@@ -326,9 +339,9 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
 		player.killNpc();
 		break;
 	    case "left":
-		weaponImg.src = weapSrc + "left.png";
-		weapon.style.top = player.posJ*TILE_SIZE - RENDER_SIZE*TILE_SIZE + "px" ;
-		weapon.style.left=player.posI*TILE_SIZE - RENDER_SIZE*TILE_SIZE - TILE_SIZE + "px";
+		player.sword.img.src = player.sword.src + "left.png";
+		player.sword.dom.style.top = player.posJ*TILE_SIZE - RENDER_SIZE*TILE_SIZE + "px" ;
+		player.sword.dom.style.left=player.posI*TILE_SIZE - RENDER_SIZE*TILE_SIZE - TILE_SIZE + "px";
 		player.img.src = player.src + "left_atk.png";
 		setTimeout(function(){
 		    player.img.src = player.src + "link_left_1.png";
@@ -336,9 +349,9 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
 		player.killNpc();
 		break;
 	    case "right":
-		weaponImg.src = weapSrc + "right.png";
-		weapon.style.top = player.posJ*TILE_SIZE + "px";
-		weapon.style.left=player.posI*TILE_SIZE + TILE_SIZE + "px";
+		player.sword.img.src = player.sword.src + "right.png";
+		player.sword.dom.style.top = player.posJ*TILE_SIZE + "px";
+		player.sword.dom.style.left=player.posI*TILE_SIZE + TILE_SIZE + "px";
 		player.img.src = player.src + "right_atk.png";
 		setTimeout(function(){
 		    player.img.src = player.src + "link_right_1.png";
@@ -346,9 +359,9 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir){
 		player.killNpc();
 		break;		
 	    }
-	    weapon.style.visibility = "visible";
+	    player.sword.dom.style.visibility = "visible";
 	    setTimeout(function(){
-		weapon.style.visibility = "hidden";
+		player.sword.dom.style.visibility = "hidden";
 	    },200)
 	}
     }    
@@ -477,14 +490,18 @@ function initPlayer(){
     var playerSrc = "res/spritesheets/link/";
     var DOM = document.getElementById("player");
     var IMG = document.createElement("img");
+    var sword;
     while(placed==false){
 	var randomI = Math.floor((Math.random() * (WORLD_WIDTH -1)));
 	var randomJ = Math.floor((Math.random() * (WORLD_WIDTH -1)));
 	if(((randomI+(RENDER_SIZE/2)+1) < WORLD_WIDTH) && ((randomJ+(RENDER_SIZE/2)+1) < WORLD_WIDTH) && ((randomI-(RENDER_SIZE/2)) >= 0) && ((randomJ-(RENDER_SIZE/2)) >= 0)){
-	    if(world[randomI][randomJ] == TileType.GRASS || world[randomI][randomJ] == TileType.SAND){
-		player = new playerConstructor(playerSrc,randomI,randomJ,16,false,DOM,IMG,"up");
+	    if(world[randomI][randomJ] == TileType.GRASS || world[randomI][randomJ] == TileType.SAND){		
+		sword = new weaponConstructor(randomI,randomJ);
+		sword.init();
+		player = new playerConstructor(playerSrc,randomI,randomJ,16,false,DOM,IMG,"up",sword);
 		player.img.src = player.src+"link_front_0.png";
 		player.dom.appendChild(player.img);
+		player.dom.appendChild(sword.dom);
 		placed = true;
 	    }
 	}
