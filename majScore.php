@@ -54,8 +54,8 @@ class Model {
             // préparation de la requête
             $sql1 = "SELECT BestScore FROM jsworldgen";
 			$buff = self::$pdo->query($sql1);
-			$bestScore = $buff->setFetchMode(PDO::FETCH_NUM);
-			if($score > $bestScore){
+			$bestScore = $buff->fetchAll(PDO::FETCH_NUM);
+			if($score > $bestScore[0][0]){
 				$sql2 = "UPDATE jsworldgen SET BestScore = :buffScore";
 				$req_prep = self::$pdo->prepare($sql2);
 				$values = array("buffScore" => $score);
@@ -63,7 +63,7 @@ class Model {
 				$req_prep->execute($values);
 				return $score;
 			}else{
-				return $bestScore;
+				return $bestScore[0][0];
 			}
         } catch (PDOException $e) {
             echo $e->getMessage();
@@ -74,6 +74,6 @@ class Model {
 }
 
 Model::init_pdo();
-$score = $_POST["score"];
+$score = $_POST["data"];
 $res = Model::majScore($score);
 echo json_encode($res);

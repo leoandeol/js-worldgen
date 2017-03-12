@@ -53,7 +53,7 @@ function init(){
     initNPCS(NPC_NUMBER);
 	initHearts(heart_number);
     for(var i = 0; i < NPC_NUMBER; i++){
-		jeu.appendChild(npc_tab[i].npcDOM);
+	jeu.appendChild(npc_tab[i].npcDOM);
     }
 	for(var i = 0; i < heart_number; i++){
 		jeu.appendChild(heart_tab[i].dom);
@@ -69,16 +69,19 @@ function init(){
 	
 	// INTERVALS
 	
-	//intervScore = setInterval(MajBestScore,1000);
+	intervScore = setInterval(MajBestScore,10);
     intervNpc = setInterval(npcMoves,1000);
-	setInterval(function(){		
-		console.log("life points : "+player.life);
-	},1000);
+	setInterval(function(){
+		if(npc_tab.length==0){
+			alert("VICTOIRE !");
+			relancer();
+		}
+	},10);
 }
 
 function relancer(){
     while (jeu.firstChild) {
-		jeu.removeChild(jeu.firstChild);
+	jeu.removeChild(jeu.firstChild);
     }
 	infos.removeChild(scoreDOM);
 	infos.removeChild(bestScore);
@@ -88,10 +91,21 @@ function relancer(){
 }
 
 function checkLifePoints(){
-	
+	var imgLP = document.getElementById("LPimg");
+	var LPsrc = "res/spritesheets/link/hearts/";
 	if(player.life == 0){
+		imgLP.src = LPsrc+="0_hearts.png";
 		alert("GAME OVER");
 		relancer();
+	}
+	else if(player.life ==1){
+		imgLP.src = LPsrc+="1_hearts.png";		
+	}
+	else if(player.life ==2){
+		imgLP.src = LPsrc+="2_hearts.png";		
+	}
+	else if(player.life ==3){
+		imgLP.src = LPsrc+="3_hearts.png";		
 	}
 	
 }
@@ -255,30 +269,30 @@ function clean_tiles(){
 }
 
 function render(SIZE){
-	
-	for(var i = 0; i < WORLD_WIDTH; i++){
-		for(var j = 0; j < WORLD_WIDTH; j++){
-			var t = document.createElement("img");
-			var src = "img/";
-			switch(world[i][j]){
-			case TileType.WATER:
-			src+="water";
-			break;
-			case TileType.GRASS:
-			src+="grass";
-			break;
-			case TileType.SAND:
-			src+="sand";
-			break;
-			}
-			src += ".png";
-			t.src = src;
-			t.id = i+'';
-			t.id += j+'';
-			t.style="width:"+(TILE_SIZE)+"px;height:"+(TILE_SIZE)+"+px;position:absolute;margin:0;top:"+(TILE_SIZE*j)+"px;left:"+(TILE_SIZE*i)+"px;";
-			jeu.appendChild(t);
-		}
+    
+    for(var i = 0; i < WORLD_WIDTH; i++){
+	for(var j = 0; j < WORLD_WIDTH; j++){
+	    var t = document.createElement("img");
+	    var src = "img/";
+	    switch(world[i][j]){
+	    case TileType.WATER:
+		src+="water";
+		break;
+	    case TileType.GRASS:
+		src+="grass";
+		break;
+	    case TileType.SAND:
+		src+="sand";
+		break;
+	    }
+	    src += ".png";
+	    t.src = src;
+	    t.id = i+'';
+	    t.id += j+'';
+	    t.style="width:"+(TILE_SIZE)+"px;height:"+(TILE_SIZE)+"+px;position:absolute;margin:0;top:"+(TILE_SIZE*j)+"px;left:"+(TILE_SIZE*i)+"px;";
+	    jeu.appendChild(t);
 	}
+    }
 }
 
 
@@ -294,11 +308,11 @@ function weaponConstructor(initI,initJ){
     this.img;
 
     this.init = function(){
-		this.dom = document.createElement("div");
-		this.img = document.createElement("img");
-		this.dom.style.zIndex = 3;
-		this.dom.appendChild(this.img);
-		this.dom.id = "weapon";
+	this.dom = document.createElement("div");
+	this.img = document.createElement("img");
+	this.dom.style.zIndex = 3;
+	this.dom.appendChild(this.img);
+	this.dom.id = "weapon";
     }
 }
 
@@ -323,86 +337,87 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir,weapon){
     player.killNpc = function(){
 	for(var i = 0; i < npc_tab.length; i++){
 	    if((npc_tab[i].npcI == player.posI && npc_tab[i].npcJ == this.posJ-1 && this.direction == "up") || (npc_tab[i].npcI == player.posI && npc_tab[i].npcJ == this.posJ+1 && this.direction == "down") ||
-	      (npc_tab[i].npcI == player.posI-1 && npc_tab[i].npcJ == this.posJ && this.direction == "left") || (npc_tab[i].npcI == player.posI+1 && npc_tab[i].npcJ == this.posJ && this.direction == "right")){
+	       (npc_tab[i].npcI == player.posI-1 && npc_tab[i].npcJ == this.posJ && this.direction == "left") || (npc_tab[i].npcI == player.posI+1 && npc_tab[i].npcJ == this.posJ && this.direction == "right")){
 		score++;
 		jeu.removeChild(npc_tab[i].npcDOM);
-		document.getElementById("score").innerHTML = score;
+		npc_tab.splice(i,1);
+		scoreDOM.innerHTML = "<p id=\"score\">Score : </p>"+score;
 	    }
 	}
     }
 
     player.attack = function(event){
-		if(event.keyCode == 32){
-			var weapSrc = "res/spritesheets/link/weapons/";
-			switch(player.direction){
-			case "up":
-			player.sword.img.src = player.sword.src + "up.png";
-			player.sword.posJ = player.posJ - 1;
-			player.sword.posI = player.posI;
-			
-			player.sword.dom.style.top= -TILE_SIZE+"px";
-			player.sword.dom.style.left= 0+"px";
-			
-			player.img.src = player.src + "up_atk.png";
-			setTimeout(function(){
-				player.img.src = player.src + "link_back_0.png";
-			},200)
-			player.killNpc();
-			break;
-			case "down":
-			player.sword.img.src = player.sword.src + "down.png";
-			player.sword.posJ = player.posJ + 1;
-			player.sword.posI = player.posI;
-					
-			player.sword.dom.style.top= TILE_SIZE+"px";
-			player.sword.dom.style.left= 0+"px";
-			
-			player.img.src = player.src + "down_atk.png";
-			setTimeout(function(){
-				player.img.src = player.src + "link_front_0.png";
-			},200)	
-			player.killNpc();
-			break;
-			case "left":
-			player.sword.img.src = player.sword.src + "left.png";
-			player.sword.posJ = player.posJ;
-			player.sword.posI = player.posI - 1;
-			
-			player.sword.dom.style.top= 0 +"px";
-			player.sword.dom.style.left=-TILE_SIZE+"px";
-			
-			player.img.src = player.src + "left_atk.png";
-			setTimeout(function(){
-				player.img.src = player.src + "link_left_1.png";
-			},200)		
-			player.killNpc();
-			break;
-			case "right":
-			player.sword.img.src = player.sword.src + "right.png";
-			player.sword.posJ = player.posJ;
-			player.sword.posI = player.posI + 1;
-			
-			player.sword.dom.style.top= 0+"px";
-			player.sword.dom.style.left=TILE_SIZE+"px";
-			
-			player.img.src = player.src + "right_atk.png";
-			setTimeout(function(){
-				player.img.src = player.src + "link_right_1.png";
-			},200)
-			player.killNpc();
-			break;		
-			}
-			player.sword.dom.style.visibility = "visible";
-			setTimeout(function(){
-			player.sword.dom.style.visibility = "hidden";
-			},200)
-		}
+	if(event.keyCode == 32){
+	    var weapSrc = "res/spritesheets/link/weapons/";
+	    switch(player.direction){
+	    case "up":
+		player.sword.img.src = player.sword.src + "up.png";
+		player.sword.posJ = player.posJ - 1;
+		player.sword.posI = player.posI;
+		
+		player.sword.dom.style.top= -TILE_SIZE+"px";
+		player.sword.dom.style.left= 0+"px";
+		
+		player.img.src = player.src + "up_atk.png";
+		setTimeout(function(){
+		    player.img.src = player.src + "link_back_0.png";
+		},200)
+		player.killNpc();
+		break;
+	    case "down":
+		player.sword.img.src = player.sword.src + "down.png";
+		player.sword.posJ = player.posJ + 1;
+		player.sword.posI = player.posI;
+		
+		player.sword.dom.style.top= TILE_SIZE+"px";
+		player.sword.dom.style.left= 0+"px";
+		
+		player.img.src = player.src + "down_atk.png";
+		setTimeout(function(){
+		    player.img.src = player.src + "link_front_0.png";
+		},200)	
+		player.killNpc();
+		break;
+	    case "left":
+		player.sword.img.src = player.sword.src + "left.png";
+		player.sword.posJ = player.posJ;
+		player.sword.posI = player.posI - 1;
+		
+		player.sword.dom.style.top= 0 +"px";
+		player.sword.dom.style.left=-TILE_SIZE+"px";
+		
+		player.img.src = player.src + "left_atk.png";
+		setTimeout(function(){
+		    player.img.src = player.src + "link_left_1.png";
+		},200)		
+		player.killNpc();
+		break;
+	    case "right":
+		player.sword.img.src = player.sword.src + "right.png";
+		player.sword.posJ = player.posJ;
+		player.sword.posI = player.posI + 1;
+		
+		player.sword.dom.style.top= 0+"px";
+		player.sword.dom.style.left=TILE_SIZE+"px";
+		
+		player.img.src = player.src + "right_atk.png";
+		setTimeout(function(){
+		    player.img.src = player.src + "link_right_1.png";
+		},200)
+		player.killNpc();
+		break;		
+	    }
+	    player.sword.dom.style.visibility = "visible";
+	    setTimeout(function(){
+		player.sword.dom.style.visibility = "hidden";
+	    },200)
+	}
     }    
     // PLAYER MOTION
     this.move = function(event,boat){
 		
-    var canGo = true;
-	var code = event.keyCode;
+		var canGo = true;
+		var code = event.keyCode;
 		if(code == 40 || code == 38 || code == 37 || code == 39){
 			if(code == 40){
 				for(var i = 0; i < npc_tab.length; i++){
@@ -491,54 +506,55 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir,weapon){
 				player.direction = "right";
 				if(canGo && (player.posI + 1) < (WORLD_WIDTH - 1)){
 					if(world[this.posI+1][this.posJ]!= TileType.WATER){
-					if(this.onBoat == true){
-						this.onBoat = false;
-					}
-					this.posI ++;
+						if(this.onBoat == true){
+							this.onBoat = false;
+						}
+						this.posI ++;
 					}
 					else if(world[this.posI+1][this.posJ] == TileType.WATER){
-					if(this.posI+1 == boat.posI && this.posJ == boat.posJ && this.onBoat == false){
-						this.onBoat = true;
-						this.posI ++;
-					}
-					else if(this.onBoat == true){
-						this.posI ++;
-						boat.posI ++;
-					}
+						if(this.posI+1 == boat.posI && this.posJ == boat.posJ && this.onBoat == false){
+							this.onBoat = true;
+							this.posI ++;
+						}
+						else if(this.onBoat == true){
+							this.posI ++;
+							boat.posI ++;
+						}
 					}		
 				}
 			}
-			this.img.src = this.src;
+	    }
+	    this.img.src = this.src;
+	    if(this.direction==="up"){
+		this.img.src += "link_back_0.png";
+	    } else if(this.direction==="left"){
+		this.img.src += "link_left_1.png";
+	    } else if(this.direction==="right"){
+		this.img.src += "link_right_1.png";
+	    } else if(this.direction==="down"){
+		this.img.src += "link_front_0.png";
+	    } else {
+		console.error("undefined direction");
+	    }
+	    if(this.onBoat){
+		boat.img.src = boat.src
 			if(this.direction==="up"){
-			this.img.src += "link_back_0.png";
+				boat.img.src += "boat_back.png";
 			} else if(this.direction==="left"){
-			this.img.src += "link_left_1.png";
+				boat.img.src += "boat_left.png";
 			} else if(this.direction==="right"){
-			this.img.src += "link_right_1.png";
+				boat.img.src += "boat_right.png";
 			} else if(this.direction==="down"){
-			this.img.src += "link_front_0.png";
+				boat.img.src += "boat_front.png";
 			} else {
-			console.error("undefined direction");
+				console.error("undefined direction");
 			}
-			if(this.onBoat){
-				boat.img.src = boat.src
-				if(this.direction==="up"){
-					boat.img.src += "boat_back.png";
-				} else if(this.direction==="left"){
-					boat.img.src += "boat_left.png";
-				} else if(this.direction==="right"){
-					boat.img.src += "boat_right.png";
-				} else if(this.direction==="down"){
-					boat.img.src += "boat_front.png";
-				} else {
-					console.error("undefined direction");
-				}
-			}
-		}
+	    }
 		for(var i = 0; i < heart_tab.length; i++){
 			if(player.posI == heart_tab[i].posI && player.posJ == heart_tab[i].posJ && player.life < 3){
 				player.life++;
 				jeu.removeChild(heart_tab[i].dom);
+				heart_tab.splice(i,1);
 			}
 		}
 		boat.dom.style.top=(boat.posJ*TILE_SIZE)+"px";
@@ -574,9 +590,10 @@ function initPlayer(){
 
 function replace(){
     player.posI = player.initI;
-    player.posJ = player.initJ;		
-	player.dom.style.top=(player.posJ*TILE_SIZE)+"px";
-	player.dom.style.left=(player.posI*TILE_SIZE)+"px";
+    player.posJ = player.initJ;
+    
+    player.dom.style.top=(player.posJ*TILE_SIZE)+"px";
+    player.dom.style.left=(player.posI*TILE_SIZE)+"px";
 }
 
 //////////////////////////////HEARTS//////////////////////////////
@@ -634,17 +651,17 @@ function boatConstructor(src,initI,initJ,DOM,IMG){
 }
 
 function initBoat(){
-	if(document.getElementById("boat")){
-		jeu.removeChild(divBoat);
-	}
+    if(document.getElementById("boat")){
+	jeu.removeChild(divBoat);
+    }
     var placed = false;
-	divBoat = document.createElement("div");
+    divBoat = document.createElement("div");
     divBoat.id = "boat";
-	jeu.appendChild(divBoat);
+    jeu.appendChild(divBoat);
     var boatSrc = "res/spritesheets/boat/";
     var DOM = document.getElementById("boat");
     var IMG = document.createElement("img");
-	
+    
     while(placed==false){
 	var randomI = Math.floor((Math.random() * (WORLD_WIDTH -2))+1);
 	var randomJ = Math.floor((Math.random() * (WORLD_WIDTH -2))+1);
@@ -787,10 +804,10 @@ function npcMoves(){
 function MajBestScore(){
 	$.ajax({
 		type	: "POST",
-		score	: score,
+		data	: "data="+score,
 		url		: "http://infolimon.iutmontp.univ-montp2.fr/~kizardjianl/js-worldgen/majScore.php",
 		success	: function(res){
-			var bScore = res[0];
+			var bScore = res;
 			bestScore.innerHTML = "Best Score : "+bScore;			
 		},
 		error 	: function(){

@@ -1,7 +1,17 @@
 body {
     display:flex;
-    flex-direction:row;
+    flex-direction:column;
     margin:0;
+}
+
+#barre, #jeu {
+    border: 5px solid black;
+    width:1040px;
+}
+
+#barre {
+    display:flex;
+    flex-direction:row;
 }
 
 #player {
@@ -10,7 +20,7 @@ body {
 	height:16px;
 	top:0px;
 	left:0px;
-	z-index:1;
+	z-index:3;
 }
 
 #weapon {
@@ -30,13 +40,12 @@ body {
 }
 
 #jeu {
-    flex:1;
-    position:relative;
+    position:relative;/*
+    zoom: 0.75;
+    -moz-transform: scale(0.75);*/
+    height:1040px;
 }
 
-#jeu,#infos {
-    border-right: 5px solid black;
-}
 
 #infos,#boutons {
     display:flex;
@@ -44,6 +53,11 @@ body {
     width:300px;
     margin:0 auto;
     text-align:center;
+}
+
+#LPimg {
+	width:300px;
+	height:100px;
 }
 
 h3 {
