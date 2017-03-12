@@ -28,12 +28,12 @@ const TileType = {
     SAND : 2
 };
 
-//Random function between two ints
+//Fonction qui retourne un entier aléatoire entre deux bornes
 function rand(low,high){
     return Math.floor((Math.random() * high) + low);
 }
 
-//INIT
+// fonction d'initialisation pour le joueur le terrain, les npcs, le bateau, et tout l'affichage
 function init(){
     jeu = document.getElementById("jeu");
     tiles = document.createElement("div");
@@ -62,7 +62,7 @@ function init(){
     infos.appendChild(scoreDOM);
     infos.appendChild(bestScore);
 }
-
+// on supprime tout et on réinitialise
 function relancer(){
     while (jeu.firstChild) {
 	jeu.removeChild(jeu.firstChild);
@@ -72,7 +72,7 @@ function relancer(){
     clearInterval(interv);
     init();	
 }
-//WORLDGEN
+// on lance les differentes fonctions de génération du monde
 function gen(){
     //Fillin
     world = diamondsquare(WORLD_WIDTH);
@@ -81,6 +81,7 @@ function gen(){
     console.log(world);
 }
 
+// cette fonction reprend l'algorithme diamondsquare qui à coup de moyennes avec une touche d'aléatoire crée une heightmap propre et fluide
 function diamondsquare(SIZE){
     var size = SIZE-1;
     var extent = size;
@@ -150,6 +151,7 @@ function diamondsquare(SIZE){
     return points;
 }
 
+// On normalise les valeurs du tableaux pour correspondre à l'intervalle qu'on veut avoir
 function convert(tab, length,SIZE)
 {
     var min = 0, max = 0;
@@ -188,6 +190,7 @@ function convert(tab, length,SIZE)
     return tab;
 }
 
+// on calcule le niveau de l'eau pour que l'on aie 2/3 de la map immergée
 function calculateWaterLevel(tab, length,SIZE)
 {
     // let's find the value for which 2/3 of the values are lower
@@ -222,13 +225,13 @@ function calculateWaterLevel(tab, length,SIZE)
 
     return tab;
 }
-
+// on vire tous les tiles affichés
 function clean_tiles(){
     while (tiles.firstChild) {
 	tiles.removeChild(tiles.firstChild);
     }
 }
-
+/* unstable
 function render(SIZE){
     
     for(var i = 0; i < WORLD_WIDTH; i++){
@@ -255,7 +258,7 @@ function render(SIZE){
 	}
     }
 }
-
+*/
 
 ////////////////////////////// PLAYER //////////////////////////////
 
