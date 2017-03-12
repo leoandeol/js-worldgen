@@ -1,7 +1,17 @@
 body {
     display:flex;
-    flex-direction:row;
+    flex-direction:column;
     margin:0;
+}
+
+#barre, #jeu {
+    border: 5px solid black;
+    width:1040px;
+}
+
+#barre {
+    display:flex;
+    flex-direction:row;
 }
 
 #player {
@@ -30,13 +40,12 @@ body {
 }
 
 #jeu {
-    flex:1;
-    position:relative;
+    position:relative;/*
+    zoom: 0.75;
+    -moz-transform: scale(0.75);*/
+    height:1040px;
 }
 
-#jeu,#infos {
-    border-right: 5px solid black;
-}
 
 #infos,#boutons {
     display:flex;

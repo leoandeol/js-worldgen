@@ -49,27 +49,27 @@ function init(){
     boat.dom.style.zIndex = 2;
     initNPCS(NPC_NUMBER);
     for(var i = 0; i < NPC_NUMBER; i++){
-		jeu.appendChild(npc_tab[i].npcDOM);
+	jeu.appendChild(npc_tab[i].npcDOM);
     }
-	render(WORLD_WIDTH);
+    render(WORLD_WIDTH);
     interv = setInterval(npcMoves,1000);
-	infos = document.getElementById("infos");
-	scoreDOM = document.createElement("div");
-	scoreDOM.innerHTML = "<p> Score <p id=\"score\"> 0 </p></p>"
-	bestScore = document.createElement("div");
-	bestScore.id = "bestScore";
-	bestScore.innerHTML = "Best Score :";
-	infos.appendChild(scoreDOM);
-	infos.appendChild(bestScore);
+    infos = document.getElementById("infos");
+    scoreDOM = document.createElement("div");
+    scoreDOM.innerHTML = "<p id=\"score\">Score : 0</p>";
+    bestScore = document.createElement("div");
+    bestScore.id = "bestScore";
+    bestScore.innerHTML = "Best Score :";
+    infos.appendChild(scoreDOM);
+    infos.appendChild(bestScore);
 }
 
 function relancer(){
     while (jeu.firstChild) {
-		jeu.removeChild(jeu.firstChild);
+	jeu.removeChild(jeu.firstChild);
     }
-	infos.removeChild(scoreDOM);
-	infos.removeChild(bestScore);
-	clearInterval(interv);
+    infos.removeChild(scoreDOM);
+    infos.removeChild(bestScore);
+    clearInterval(interv);
     init();	
 }
 //WORLDGEN
@@ -230,30 +230,30 @@ function clean_tiles(){
 }
 
 function render(SIZE){
-	
-	for(var i = 0; i < WORLD_WIDTH; i++){
-		for(var j = 0; j < WORLD_WIDTH; j++){
-			var t = document.createElement("img");
-			var src = "img/";
-			switch(world[i][j]){
-			case TileType.WATER:
-			src+="water";
-			break;
-			case TileType.GRASS:
-			src+="grass";
-			break;
-			case TileType.SAND:
-			src+="sand";
-			break;
-			}
-			src += ".png";
-			t.src = src;
-			t.id = i+'';
-			t.id += j+'';
-			t.style="width:"+(TILE_SIZE)+"px;height:"+(TILE_SIZE)+"+px;position:absolute;margin:0;top:"+(TILE_SIZE*j)+"px;left:"+(TILE_SIZE*i)+"px;";
-			jeu.appendChild(t);
-		}
+    
+    for(var i = 0; i < WORLD_WIDTH; i++){
+	for(var j = 0; j < WORLD_WIDTH; j++){
+	    var t = document.createElement("img");
+	    var src = "img/";
+	    switch(world[i][j]){
+	    case TileType.WATER:
+		src+="water";
+		break;
+	    case TileType.GRASS:
+		src+="grass";
+		break;
+	    case TileType.SAND:
+		src+="sand";
+		break;
+	    }
+	    src += ".png";
+	    t.src = src;
+	    t.id = i+'';
+	    t.id += j+'';
+	    t.style="width:"+(TILE_SIZE)+"px;height:"+(TILE_SIZE)+"+px;position:absolute;margin:0;top:"+(TILE_SIZE*j)+"px;left:"+(TILE_SIZE*i)+"px;";
+	    jeu.appendChild(t);
 	}
+    }
 }
 
 
@@ -269,11 +269,11 @@ function weaponConstructor(initI,initJ){
     this.img;
 
     this.init = function(){
-		this.dom = document.createElement("div");
-		this.img = document.createElement("img");
-		this.dom.style.zIndex = 3;
-		this.dom.appendChild(this.img);
-		this.dom.id = "weapon";
+	this.dom = document.createElement("div");
+	this.img = document.createElement("img");
+	this.dom.style.zIndex = 3;
+	this.dom.appendChild(this.img);
+	this.dom.id = "weapon";
     }
 }
 
@@ -297,223 +297,223 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir,weapon){
     player.killNpc = function(){
 	for(var i = 0; i < npc_tab.length; i++){
 	    if((npc_tab[i].npcI == player.posI && npc_tab[i].npcJ == this.posJ-1 && this.direction == "up") || (npc_tab[i].npcI == player.posI && npc_tab[i].npcJ == this.posJ+1 && this.direction == "down") ||
-	      (npc_tab[i].npcI == player.posI-1 && npc_tab[i].npcJ == this.posJ && this.direction == "left") || (npc_tab[i].npcI == player.posI+1 && npc_tab[i].npcJ == this.posJ && this.direction == "right")){
+	       (npc_tab[i].npcI == player.posI-1 && npc_tab[i].npcJ == this.posJ && this.direction == "left") || (npc_tab[i].npcI == player.posI+1 && npc_tab[i].npcJ == this.posJ && this.direction == "right")){
 		score++;
 		jeu.removeChild(npc_tab[i].npcDOM);
-		document.getElementById("score").innerHTML = score;
+		scoreDOM.innerHTML = "<p id=\"score\">Score : </p>"+score;
 	    }
 	}
     }
 
     player.attack = function(event){
-		if(event.keyCode == 32){
-			var weapSrc = "res/spritesheets/link/weapons/";
-			switch(player.direction){
-			case "up":
-			player.sword.img.src = player.sword.src + "up.png";
-			player.sword.posJ = player.posJ - 1;
-			player.sword.posI = player.posI;
-			
-			player.sword.dom.style.top= -TILE_SIZE+"px";
-			player.sword.dom.style.left= 0+"px";
-			
-			player.img.src = player.src + "up_atk.png";
-			setTimeout(function(){
-				player.img.src = player.src + "link_back_0.png";
-			},200)
-			player.killNpc();
-			break;
-			case "down":
-			player.sword.img.src = player.sword.src + "down.png";
-			player.sword.posJ = player.posJ + 1;
-			player.sword.posI = player.posI;
-					
-			player.sword.dom.style.top= TILE_SIZE+"px";
-			player.sword.dom.style.left= 0+"px";
-			
-			player.img.src = player.src + "down_atk.png";
-			setTimeout(function(){
-				player.img.src = player.src + "link_front_0.png";
-			},200)	
-			player.killNpc();
-			break;
-			case "left":
-			player.sword.img.src = player.sword.src + "left.png";
-			player.sword.posJ = player.posJ;
-			player.sword.posI = player.posI - 1;
-			
-			player.sword.dom.style.top= 0 +"px";
-			player.sword.dom.style.left=-TILE_SIZE+"px";
-			
-			player.img.src = player.src + "left_atk.png";
-			setTimeout(function(){
-				player.img.src = player.src + "link_left_1.png";
-			},200)		
-			player.killNpc();
-			break;
-			case "right":
-			player.sword.img.src = player.sword.src + "right.png";
-			player.sword.posJ = player.posJ;
-			player.sword.posI = player.posI + 1;
-			
-			player.sword.dom.style.top= 0+"px";
-			player.sword.dom.style.left=TILE_SIZE+"px";
-			
-			player.img.src = player.src + "right_atk.png";
-			setTimeout(function(){
-				player.img.src = player.src + "link_right_1.png";
-			},200)
-			player.killNpc();
-			break;		
-			}
-			player.sword.dom.style.visibility = "visible";
-			setTimeout(function(){
-			player.sword.dom.style.visibility = "hidden";
-			},200)
-		}
+	if(event.keyCode == 32){
+	    var weapSrc = "res/spritesheets/link/weapons/";
+	    switch(player.direction){
+	    case "up":
+		player.sword.img.src = player.sword.src + "up.png";
+		player.sword.posJ = player.posJ - 1;
+		player.sword.posI = player.posI;
+		
+		player.sword.dom.style.top= -TILE_SIZE+"px";
+		player.sword.dom.style.left= 0+"px";
+		
+		player.img.src = player.src + "up_atk.png";
+		setTimeout(function(){
+		    player.img.src = player.src + "link_back_0.png";
+		},200)
+		player.killNpc();
+		break;
+	    case "down":
+		player.sword.img.src = player.sword.src + "down.png";
+		player.sword.posJ = player.posJ + 1;
+		player.sword.posI = player.posI;
+		
+		player.sword.dom.style.top= TILE_SIZE+"px";
+		player.sword.dom.style.left= 0+"px";
+		
+		player.img.src = player.src + "down_atk.png";
+		setTimeout(function(){
+		    player.img.src = player.src + "link_front_0.png";
+		},200)	
+		player.killNpc();
+		break;
+	    case "left":
+		player.sword.img.src = player.sword.src + "left.png";
+		player.sword.posJ = player.posJ;
+		player.sword.posI = player.posI - 1;
+		
+		player.sword.dom.style.top= 0 +"px";
+		player.sword.dom.style.left=-TILE_SIZE+"px";
+		
+		player.img.src = player.src + "left_atk.png";
+		setTimeout(function(){
+		    player.img.src = player.src + "link_left_1.png";
+		},200)		
+		player.killNpc();
+		break;
+	    case "right":
+		player.sword.img.src = player.sword.src + "right.png";
+		player.sword.posJ = player.posJ;
+		player.sword.posI = player.posI + 1;
+		
+		player.sword.dom.style.top= 0+"px";
+		player.sword.dom.style.left=TILE_SIZE+"px";
+		
+		player.img.src = player.src + "right_atk.png";
+		setTimeout(function(){
+		    player.img.src = player.src + "link_right_1.png";
+		},200)
+		player.killNpc();
+		break;		
+	    }
+	    player.sword.dom.style.visibility = "visible";
+	    setTimeout(function(){
+		player.sword.dom.style.visibility = "hidden";
+	    },200)
+	}
     }    
     // PLAYER MOTION
     this.move = function(event,boat){
-		
-    var canGo = true;
+	
+	var canGo = true;
 	console.log("x="+player.posI+";y="+player.posJ);
 	var code = event.keyCode;
-		if(code == 40 || code == 38 || code == 37 || code == 39){
-			if(code == 40){
-				for(var i = 0; i < npc_tab.length; i++){
-					if(npc_tab[i].npcI == this.posI && npc_tab[i].npcJ == this.posJ+1){
-						canGo = false;
-					}
-				}
-			player.direction = "down";
-			if(canGo && ((player.posJ + 1) < (WORLD_WIDTH - 1))){
-				if(world[this.posI][this.posJ+1]!= TileType.WATER){
-				if(this.onBoat == true){
-					this.onBoat = false;
-				}
-				this.posJ ++;
-				}
-				else if(world[this.posI][this.posJ+1] == TileType.WATER){
-				if(this.posI == boat.posI && this.posJ+1 == boat.posJ && this.onBoat == false){
-					this.onBoat = true;
-					this.posJ ++;
-				}
-				else if(this.onBoat == true){
-					this.posJ ++;
-					boat.posJ ++;
-				}
-				}
+	if(code == 40 || code == 38 || code == 37 || code == 39){
+	    if(code == 40){
+		for(var i = 0; i < npc_tab.length; i++){
+		    if(npc_tab[i].npcI == this.posI && npc_tab[i].npcJ == this.posJ+1){
+			canGo = false;
+		    }
+		}
+		player.direction = "down";
+		if(canGo && ((player.posJ + 1) < (WORLD_WIDTH - 1))){
+		    if(world[this.posI][this.posJ+1]!= TileType.WATER){
+			if(this.onBoat == true){
+			    this.onBoat = false;
 			}
-			}		
-			if(code == 38){
-				for(var i = 0; i < npc_tab.length; i++){
-					if(npc_tab[i].npcI == this.posI && npc_tab[i].npcJ == this.posJ-1){
-						canGo = false;
-					}
-				}
-			player.direction = "up";
-			if(canGo && (player.posJ - 1) > 0 ){
-				if(world[this.posI][this.posJ-1]!= TileType.WATER){
-				if(this.onBoat == true){
-					this.onBoat = false;
-				}
-				this.posJ --;
-				}
-				else if(world[this.posI][this.posJ-1] == TileType.WATER){
-				if(this.posI == boat.posI && this.posJ-1 == boat.posJ && this.onBoat == false){
-					this.onBoat = true;
-					this.posJ --;
-				}
-				else if(this.onBoat == true){
-					this.posJ --;
-					boat.posJ --;
-				}	
-				}		
+			this.posJ ++;
+		    }
+		    else if(world[this.posI][this.posJ+1] == TileType.WATER){
+			if(this.posI == boat.posI && this.posJ+1 == boat.posJ && this.onBoat == false){
+			    this.onBoat = true;
+			    this.posJ ++;
 			}
+			else if(this.onBoat == true){
+			    this.posJ ++;
+			    boat.posJ ++;
 			}
-			if(code == 37){
-				for(var i = 0; i < npc_tab.length; i++){
-					if(npc_tab[i].npcI == this.posI-1 && npc_tab[i].npcJ == this.posJ){
-						canGo = false;
-					}
-				}
-			player.direction = "left";
-			if(canGo && (player.posI - 1) > 0 ){
-				if(world[this.posI-1][this.posJ]!= TileType.WATER){
-				if(this.onBoat == true){
-					this.onBoat = false;
-				}
-				this.posI --;
-				}
-				else if(world[this.posI-1][this.posJ] == TileType.WATER){
-				if(this.posI-1 == boat.posI && this.posJ == boat.posJ && this.onBoat == false){
-					this.onBoat = true;
-					this.posI --;
-				}
-				else if(this.onBoat == true){
-					this.posI --;
-					boat.posI --;
-				}		
-				}		
+		    }
+		}
+	    }		
+	    if(code == 38){
+		for(var i = 0; i < npc_tab.length; i++){
+		    if(npc_tab[i].npcI == this.posI && npc_tab[i].npcJ == this.posJ-1){
+			canGo = false;
+		    }
+		}
+		player.direction = "up";
+		if(canGo && (player.posJ - 1) > 0 ){
+		    if(world[this.posI][this.posJ-1]!= TileType.WATER){
+			if(this.onBoat == true){
+			    this.onBoat = false;
+			}
+			this.posJ --;
+		    }
+		    else if(world[this.posI][this.posJ-1] == TileType.WATER){
+			if(this.posI == boat.posI && this.posJ-1 == boat.posJ && this.onBoat == false){
+			    this.onBoat = true;
+			    this.posJ --;
+			}
+			else if(this.onBoat == true){
+			    this.posJ --;
+			    boat.posJ --;
 			}	
+		    }		
+		}
+	    }
+	    if(code == 37){
+		for(var i = 0; i < npc_tab.length; i++){
+		    if(npc_tab[i].npcI == this.posI-1 && npc_tab[i].npcJ == this.posJ){
+			canGo = false;
+		    }
+		}
+		player.direction = "left";
+		if(canGo && (player.posI - 1) > 0 ){
+		    if(world[this.posI-1][this.posJ]!= TileType.WATER){
+			if(this.onBoat == true){
+			    this.onBoat = false;
 			}
-			if(code == 39){
-				for(var i = 0; i < npc_tab.length; i++){
-					if(npc_tab[i].npcI == this.posI+1 && npc_tab[i].npcJ == this.posJ){
-						canGo = false;
-					}
-				}
-			player.direction = "right";
-			if(canGo && (player.posI + 1) < (WORLD_WIDTH - 1)){
-				if(world[this.posI+1][this.posJ]!= TileType.WATER){
-				if(this.onBoat == true){
-					this.onBoat = false;
-				}
-				this.posI ++;
-				}
-				else if(world[this.posI+1][this.posJ] == TileType.WATER){
-				if(this.posI+1 == boat.posI && this.posJ == boat.posJ && this.onBoat == false){
-					this.onBoat = true;
-					this.posI ++;
-				}
-				else if(this.onBoat == true){
-					this.posI ++;
-					boat.posI ++;
-				}
-				}		
+			this.posI --;
+		    }
+		    else if(world[this.posI-1][this.posJ] == TileType.WATER){
+			if(this.posI-1 == boat.posI && this.posJ == boat.posJ && this.onBoat == false){
+			    this.onBoat = true;
+			    this.posI --;
 			}
+			else if(this.onBoat == true){
+			    this.posI --;
+			    boat.posI --;
+			}		
+		    }		
+		}	
+	    }
+	    if(code == 39){
+		for(var i = 0; i < npc_tab.length; i++){
+		    if(npc_tab[i].npcI == this.posI+1 && npc_tab[i].npcJ == this.posJ){
+			canGo = false;
+		    }
+		}
+		player.direction = "right";
+		if(canGo && (player.posI + 1) < (WORLD_WIDTH - 1)){
+		    if(world[this.posI+1][this.posJ]!= TileType.WATER){
+			if(this.onBoat == true){
+			    this.onBoat = false;
 			}
-			this.img.src = this.src;
-			if(this.direction==="up"){
-			this.img.src += "link_back_0.png";
-			} else if(this.direction==="left"){
-			this.img.src += "link_left_1.png";
-			} else if(this.direction==="right"){
-			this.img.src += "link_right_1.png";
-			} else if(this.direction==="down"){
-			this.img.src += "link_front_0.png";
-			} else {
-			console.error("undefined direction");
+			this.posI ++;
+		    }
+		    else if(world[this.posI+1][this.posJ] == TileType.WATER){
+			if(this.posI+1 == boat.posI && this.posJ == boat.posJ && this.onBoat == false){
+			    this.onBoat = true;
+			    this.posI ++;
 			}
-			if(this.onBoat){
-				boat.img.src = boat.src
-				if(this.direction==="up"){
-					boat.img.src += "boat_back.png";
-				} else if(this.direction==="left"){
-					boat.img.src += "boat_left.png";
-				} else if(this.direction==="right"){
-					boat.img.src += "boat_right.png";
-				} else if(this.direction==="down"){
-					boat.img.src += "boat_front.png";
-				} else {
-					console.error("undefined direction");
-				}
+			else if(this.onBoat == true){
+			    this.posI ++;
+			    boat.posI ++;
 			}
-		}			
-		boat.dom.style.top=(boat.posJ*TILE_SIZE)+"px";
-		boat.dom.style.left=(boat.posI*TILE_SIZE)+"px";
-		player.dom.style.top=(player.posJ*TILE_SIZE)+"px";
-		player.dom.style.left=(player.posI*TILE_SIZE)+"px";
+		    }		
+		}
+	    }
+	    this.img.src = this.src;
+	    if(this.direction==="up"){
+		this.img.src += "link_back_0.png";
+	    } else if(this.direction==="left"){
+		this.img.src += "link_left_1.png";
+	    } else if(this.direction==="right"){
+		this.img.src += "link_right_1.png";
+	    } else if(this.direction==="down"){
+		this.img.src += "link_front_0.png";
+	    } else {
+		console.error("undefined direction");
+	    }
+	    if(this.onBoat){
+		boat.img.src = boat.src
+		if(this.direction==="up"){
+		    boat.img.src += "boat_back.png";
+		} else if(this.direction==="left"){
+		    boat.img.src += "boat_left.png";
+		} else if(this.direction==="right"){
+		    boat.img.src += "boat_right.png";
+		} else if(this.direction==="down"){
+		    boat.img.src += "boat_front.png";
+		} else {
+		    console.error("undefined direction");
+		}
+	    }
+	}			
+	boat.dom.style.top=(boat.posJ*TILE_SIZE)+"px";
+	boat.dom.style.left=(boat.posI*TILE_SIZE)+"px";
+	player.dom.style.top=(player.posJ*TILE_SIZE)+"px";
+	player.dom.style.left=(player.posI*TILE_SIZE)+"px";
     }
 }
 
@@ -545,9 +545,9 @@ function replace(){
     console.log(player.onBoat);
     player.posI = player.initI;
     player.posJ = player.initJ;
-		
-	player.dom.style.top=(player.posJ*TILE_SIZE)+"px";
-	player.dom.style.left=(player.posI*TILE_SIZE)+"px";
+    
+    player.dom.style.top=(player.posJ*TILE_SIZE)+"px";
+    player.dom.style.left=(player.posI*TILE_SIZE)+"px";
 }
 
 
@@ -565,17 +565,17 @@ function boatConstructor(src,initI,initJ,DOM,IMG){
 }
 
 function initBoat(){
-	if(document.getElementById("boat")){
-		jeu.removeChild(divBoat);
-	}
+    if(document.getElementById("boat")){
+	jeu.removeChild(divBoat);
+    }
     var placed = false;
-	divBoat = document.createElement("div");
+    divBoat = document.createElement("div");
     divBoat.id = "boat";
-	jeu.appendChild(divBoat);
+    jeu.appendChild(divBoat);
     var boatSrc = "res/spritesheets/boat/";
     var DOM = document.getElementById("boat");
     var IMG = document.createElement("img");
-	
+    
     while(placed==false){
 	var randomI = Math.floor((Math.random() * (WORLD_WIDTH -2))+1);
 	var randomJ = Math.floor((Math.random() * (WORLD_WIDTH -2))+1);
@@ -653,11 +653,11 @@ function npcConstructor(id, src, I, J,DOM,IMG,pas){
 	else if(randomDir < 0.75 && randomDir >= 0.5){
 	    // "left"
 	    for(var i = 0; i < npc_tab.length ; i++){
-			if(this.npcId != i){					
-				if(this.npcI-1 == player.posI && this.npcJ == player.posJ){
-				canGo = false;
-				}
-			}
+		if(this.npcId != i){					
+		    if(this.npcI-1 == player.posI && this.npcJ == player.posJ){
+			canGo = false;
+		    }
+		}
 	    }
 	    if(world[this.npcI-1][this.npcJ] != TileType.WATER && this.npcI-1 > 0 && canGo){
 		//this.npcDOM.style.left = this.npcI - this.pas + "px";
