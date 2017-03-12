@@ -11,6 +11,7 @@ var score;
 var infos;
 var scoreDOM;
 var bestScore;
+var heart_number = 3;
 const WORLD_WIDTH = 65;
 const COEFF_SCALE = 1.5;
 const LENGTH = 3;
@@ -20,7 +21,9 @@ const TILE_SIZE = 16;
 const RENDER_SIZE = 10;
 const NPC_NUMBER = 20;
 var npc_tab = Array(NPC_NUMBER);
-var interv;
+var heart_tab = Array(heart_number);
+var intervNpc;
+var intervScore;
 
 const TileType = {
     WATER : 0,
@@ -48,19 +51,29 @@ function init(){
     player.dom.style.zIndex = 1;
     boat.dom.style.zIndex = 2;
     initNPCS(NPC_NUMBER);
+	initHearts(heart_number);
     for(var i = 0; i < NPC_NUMBER; i++){
 		jeu.appendChild(npc_tab[i].npcDOM);
     }
+	for(var i = 0; i < heart_number; i++){
+		jeu.appendChild(heart_tab[i].dom);
+    }
 	render(WORLD_WIDTH);
-    interv = setInterval(npcMoves,1000);
 	infos = document.getElementById("infos");
 	scoreDOM = document.createElement("div");
 	scoreDOM.innerHTML = "<p> Score <p id=\"score\"> 0 </p></p>"
 	bestScore = document.createElement("div");
 	bestScore.id = "bestScore";
-	bestScore.innerHTML = "Best Score :";
 	infos.appendChild(scoreDOM);
 	infos.appendChild(bestScore);
+	
+	// INTERVALS
+	
+	//intervScore = setInterval(MajBestScore,1000);
+    intervNpc = setInterval(npcMoves,1000);
+	setInterval(function(){		
+		console.log("life points : "+player.life);
+	},1000);
 }
 
 function relancer(){
@@ -69,9 +82,21 @@ function relancer(){
     }
 	infos.removeChild(scoreDOM);
 	infos.removeChild(bestScore);
-	clearInterval(interv);
+	clearInterval(intervNpc);
+	//clearInterval(intervScore);
     init();	
 }
+
+function checkLifePoints(){
+	
+	if(player.life == 0){
+		alert("GAME OVER");
+		relancer();
+	}
+	
+}
+
+
 //WORLDGEN
 function gen(){
     //Fillin
@@ -278,7 +303,8 @@ function weaponConstructor(initI,initJ){
 }
 
 function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir,weapon){
-    var player = this;    
+    var player = this;   
+	player.life = 3;
     player.src = src;
     player.initI = initI;
     player.initJ = initJ;
@@ -376,7 +402,6 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir,weapon){
     this.move = function(event,boat){
 		
     var canGo = true;
-	console.log("x="+player.posI+";y="+player.posJ);
 	var code = event.keyCode;
 		if(code == 40 || code == 38 || code == 37 || code == 39){
 			if(code == 40){
@@ -385,51 +410,51 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir,weapon){
 						canGo = false;
 					}
 				}
-			player.direction = "down";
-			if(canGo && ((player.posJ + 1) < (WORLD_WIDTH - 1))){
-				if(world[this.posI][this.posJ+1]!= TileType.WATER){
-				if(this.onBoat == true){
-					this.onBoat = false;
-				}
-				this.posJ ++;
-				}
-				else if(world[this.posI][this.posJ+1] == TileType.WATER){
-				if(this.posI == boat.posI && this.posJ+1 == boat.posJ && this.onBoat == false){
-					this.onBoat = true;
+				player.direction = "down";
+				if(canGo && ((player.posJ + 1) < (WORLD_WIDTH - 1))){
+					if(world[this.posI][this.posJ+1]!= TileType.WATER){
+					if(this.onBoat == true){
+						this.onBoat = false;
+					}
 					this.posJ ++;
-				}
-				else if(this.onBoat == true){
-					this.posJ ++;
-					boat.posJ ++;
-				}
+					}
+					else if(world[this.posI][this.posJ+1] == TileType.WATER){
+						if(this.posI == boat.posI && this.posJ+1 == boat.posJ && this.onBoat == false){
+							this.onBoat = true;
+							this.posJ ++;
+						}
+						else if(this.onBoat == true){
+							this.posJ ++;
+							boat.posJ ++;
+						}
+					}
 				}
 			}
-			}		
 			if(code == 38){
 				for(var i = 0; i < npc_tab.length; i++){
 					if(npc_tab[i].npcI == this.posI && npc_tab[i].npcJ == this.posJ-1){
 						canGo = false;
 					}
 				}
-			player.direction = "up";
-			if(canGo && (player.posJ - 1) > 0 ){
-				if(world[this.posI][this.posJ-1]!= TileType.WATER){
-				if(this.onBoat == true){
-					this.onBoat = false;
-				}
-				this.posJ --;
-				}
-				else if(world[this.posI][this.posJ-1] == TileType.WATER){
-				if(this.posI == boat.posI && this.posJ-1 == boat.posJ && this.onBoat == false){
-					this.onBoat = true;
+				player.direction = "up";
+				if(canGo && (player.posJ - 1) > 0 ){
+					if(world[this.posI][this.posJ-1]!= TileType.WATER){
+					if(this.onBoat == true){
+						this.onBoat = false;
+					}
 					this.posJ --;
+					}
+					else if(world[this.posI][this.posJ-1] == TileType.WATER){
+						if(this.posI == boat.posI && this.posJ-1 == boat.posJ && this.onBoat == false){
+							this.onBoat = true;
+							this.posJ --;
+						}
+						else if(this.onBoat == true){
+							this.posJ --;
+							boat.posJ --;
+						}	
+					}		
 				}
-				else if(this.onBoat == true){
-					this.posJ --;
-					boat.posJ --;
-				}	
-				}		
-			}
 			}
 			if(code == 37){
 				for(var i = 0; i < npc_tab.length; i++){
@@ -437,25 +462,25 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir,weapon){
 						canGo = false;
 					}
 				}
-			player.direction = "left";
-			if(canGo && (player.posI - 1) > 0 ){
-				if(world[this.posI-1][this.posJ]!= TileType.WATER){
-				if(this.onBoat == true){
-					this.onBoat = false;
-				}
-				this.posI --;
-				}
-				else if(world[this.posI-1][this.posJ] == TileType.WATER){
-				if(this.posI-1 == boat.posI && this.posJ == boat.posJ && this.onBoat == false){
-					this.onBoat = true;
-					this.posI --;
-				}
-				else if(this.onBoat == true){
-					this.posI --;
-					boat.posI --;
-				}		
-				}		
-			}	
+				player.direction = "left";
+				if(canGo && (player.posI - 1) > 0 ){
+					if(world[this.posI-1][this.posJ]!= TileType.WATER){
+						if(this.onBoat == true){
+							this.onBoat = false;
+						}
+						this.posI --;
+						}
+						else if(world[this.posI-1][this.posJ] == TileType.WATER){
+						if(this.posI-1 == boat.posI && this.posJ == boat.posJ && this.onBoat == false){
+							this.onBoat = true;
+							this.posI --;
+						}
+						else if(this.onBoat == true){
+							this.posI --;
+							boat.posI --;
+						}		
+					}		
+				}	
 			}
 			if(code == 39){
 				for(var i = 0; i < npc_tab.length; i++){
@@ -463,25 +488,25 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir,weapon){
 						canGo = false;
 					}
 				}
-			player.direction = "right";
-			if(canGo && (player.posI + 1) < (WORLD_WIDTH - 1)){
-				if(world[this.posI+1][this.posJ]!= TileType.WATER){
-				if(this.onBoat == true){
-					this.onBoat = false;
-				}
-				this.posI ++;
-				}
-				else if(world[this.posI+1][this.posJ] == TileType.WATER){
-				if(this.posI+1 == boat.posI && this.posJ == boat.posJ && this.onBoat == false){
-					this.onBoat = true;
+				player.direction = "right";
+				if(canGo && (player.posI + 1) < (WORLD_WIDTH - 1)){
+					if(world[this.posI+1][this.posJ]!= TileType.WATER){
+					if(this.onBoat == true){
+						this.onBoat = false;
+					}
 					this.posI ++;
+					}
+					else if(world[this.posI+1][this.posJ] == TileType.WATER){
+					if(this.posI+1 == boat.posI && this.posJ == boat.posJ && this.onBoat == false){
+						this.onBoat = true;
+						this.posI ++;
+					}
+					else if(this.onBoat == true){
+						this.posI ++;
+						boat.posI ++;
+					}
+					}		
 				}
-				else if(this.onBoat == true){
-					this.posI ++;
-					boat.posI ++;
-				}
-				}		
-			}
 			}
 			this.img.src = this.src;
 			if(this.direction==="up"){
@@ -509,7 +534,13 @@ function playerConstructor(src,initI,initJ,pas,onBoat,DOM,IMG,dir,weapon){
 					console.error("undefined direction");
 				}
 			}
-		}			
+		}
+		for(var i = 0; i < heart_tab.length; i++){
+			if(player.posI == heart_tab[i].posI && player.posJ == heart_tab[i].posJ && player.life < 3){
+				player.life++;
+				jeu.removeChild(heart_tab[i].dom);
+			}
+		}
 		boat.dom.style.top=(boat.posJ*TILE_SIZE)+"px";
 		boat.dom.style.left=(boat.posI*TILE_SIZE)+"px";
 		player.dom.style.top=(player.posJ*TILE_SIZE)+"px";
@@ -542,14 +573,52 @@ function initPlayer(){
 }
 
 function replace(){
-    console.log(player.onBoat);
     player.posI = player.initI;
-    player.posJ = player.initJ;
-		
+    player.posJ = player.initJ;		
 	player.dom.style.top=(player.posJ*TILE_SIZE)+"px";
 	player.dom.style.left=(player.posI*TILE_SIZE)+"px";
 }
 
+//////////////////////////////HEARTS//////////////////////////////
+
+function heartConstructor(id,src,initI,initJ,DOM,IMG){
+	this.id = id;
+	this.src = src;
+	this.posI = initI;
+	this.posJ = initJ;
+	this.dom = DOM;
+	this.img = IMG;
+}
+
+function placeHeart(id,I,J){
+	heart_tab[id].dom.style.left = I*TILE_SIZE+"px";
+	heart_tab[id].dom.style.top = J*TILE_SIZE+"px";	
+}
+
+function initHearts(heart_number){
+		var counter = 0;
+		var heartSrc = "res/spritesheets/link/hearts/";
+		while(counter < heart_number){
+		var DOM = document.createElement("div");
+		var IMG = document.createElement("img");
+		var heart;
+		var randomI = Math.floor((Math.random() * (WORLD_WIDTH -1)));
+		var randomJ = Math.floor((Math.random() * (WORLD_WIDTH -1)));
+		if(world[randomI][randomJ] != TileType.WATER && randomI-1 > 0 && randomJ -1 > 0 && randomI+1 < WORLD_WIDTH && randomJ+1 < WORLD_WIDTH){
+			if(randomI != player.posI && randomJ != player.posJ){
+				heart = new heartConstructor(counter,heartSrc,randomI,randomJ,DOM,IMG);
+				heart.dom.id = "heart"+counter;
+				heart.img.src = heartSrc + "heart.png";
+				heart.dom.appendChild(heart.img);
+				heart.dom.style.zIndex = 1;
+				heart.dom.style.position = "absolute";
+				heart_tab[counter] = heart;
+				placeHeart(counter,randomI,randomJ);
+				counter++;
+			}
+		}
+	}
+}
 
 ////////////////////////////// BOAT //////////////////////////////
 
@@ -622,62 +691,50 @@ function npcConstructor(id, src, I, J,DOM,IMG,pas){
 	var randomDir = Math.random();
 	if(randomDir < 0.25 && randomDir >= 0){
 	    // "up"
-	    for(var i = 0; i < npc_tab.length ; i++){
-		if(this.npcId != i){	
-		    if(this.npcJ-1 == player.posJ && this.npcI == player.posI){
+		this.npcImg.src = this.src + "npc_back.png"
+		if(this.npcJ-1 == player.posJ && this.npcI == player.posI){
 			canGo = false;
-		    }
-		}
+			player.life--;
 	    }
 	    if(world[this.npcI][this.npcJ-1]!= TileType.WATER && this.npcJ-1 > 0 && canGo){
 		//this.npcDOM.style.top = this.npcJ - this.pas + "px";
 		this.npcJ --;
-		this.npcImg.src = this.src + "npc_back.png"
 	    }
 	}
 	else if(randomDir < 0.5 && randomDir >= 0.25){
-	    // "down"
-	    for(var i = 0; i < npc_tab.length ; i++){
-		if(this.npcId != i){	
-		    if(this.npcJ+1==player.posJ && this.npcI == player.posI){
-			canGo = false;
-		    }
-		}
-	    }
-	    if(world[this.npcI][this.npcJ+1] != TileType.WATER && this.npcJ+1 < WORLD_WIDTH-1 && canGo){
-		//this.npcDOM.style.top = this.npcJ + this.pas + "px";
-		this.npcJ ++;
+	    // "down"		
 		this.npcImg.src = this.src + "npc_front.png"
+		if(this.npcJ+1==player.posJ && this.npcI == player.posI){
+			canGo = false;
+			player.life--;
+		}
+	    if(world[this.npcI][this.npcJ+1] != TileType.WATER && this.npcJ+1 < WORLD_WIDTH-1 && canGo){
+			//this.npcDOM.style.top = this.npcJ + this.pas + "px";
+			this.npcJ ++;
 	    }
 	}
 	else if(randomDir < 0.75 && randomDir >= 0.5){
-	    // "left"
-	    for(var i = 0; i < npc_tab.length ; i++){
-			if(this.npcId != i){					
-				if(this.npcI-1 == player.posI && this.npcJ == player.posJ){
-				canGo = false;
-				}
-			}
+	    // "left"	
+		this.npcImg.src = this.src + "npc_left.png"
+		if(this.npcI-1 == player.posI && this.npcJ == player.posJ){
+			canGo = false;
+			player.life--;
 	    }
 	    if(world[this.npcI-1][this.npcJ] != TileType.WATER && this.npcI-1 > 0 && canGo){
 		//this.npcDOM.style.left = this.npcI - this.pas + "px";
 		this.npcI --;
-		this.npcImg.src = this.src + "npc_left.png"
 	    }
 	}
 	else if(randomDir <= 1 && randomDir >= 0.75){
 	    // "right"
-	    for(var i = 0; i < npc_tab.length ; i++){
-		if(this.npcId != i){
-		    if(this.npcI+1 == player.posI && this.npcJ == player.posJ){
+		this.npcImg.src = this.src + "npc_right.png"
+		if(this.npcI+1 == player.posI && this.npcJ == player.posJ){
 			canGo = false;
-		    }
-		}
+			player.life = player.life -1;
 	    }
 	    if(world[this.npcI+1][this.npcJ] != TileType.WATER && this.npcI+1 < WORLD_WIDTH-1 && canGo){
 		//this.npcDOM.style.left = this.npcI + this.pas + "px";
 		this.npcI ++;
-		this.npcImg.src = this.src + "npc_right.png"
 	    }
 	}
 	this.npcDOM.style.top = (this.npcJ * TILE_SIZE) +"px";
@@ -719,12 +776,28 @@ function placeNPC(id,i,j){
 
 function npcMoves(){
     for(var i = 0; i < npc_tab.length ; i++){
-	npc_tab[i].move();
+		npc_tab[i].move();
+		checkLifePoints();
     }
 }
 
 
+////// AJAX
 
+function MajBestScore(){
+	$.ajax({
+		type	: "POST",
+		score	: score,
+		url		: "http://infolimon.iutmontp.univ-montp2.fr/~kizardjianl/js-worldgen/majScore.php",
+		success	: function(res){
+			var bScore = res[0];
+			bestScore.innerHTML = "Best Score : "+bScore;			
+		},
+		error 	: function(){
+				console.log("oups");
+		}
+	});
+}
 
 
 
