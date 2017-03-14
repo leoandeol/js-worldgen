@@ -5,17 +5,23 @@
     <title>Genproj</title>
     <link rel="stylesheet" type="text/css" href="style.css">
   </head>
-  <body onload="init();" onkeydown="player.move(event,boat);player.attack(event);">
+  <body onload="init(1.29,65,5,0,3);" onkeydown="player.move(event,boat);player.attack(event);">
+    <audio src="res/theme.mp3" autoplay loop preload="metadata"></audio>
     <div id="jeu">
     </div>
-    <div id="infos">
-      <h3>Infos</h3>
-    </div>
-    <div id="boutons">
-      <h3>Actions</h3>
-      <button id="gen" onclick="relancer();">Relancer</button>
-      <button id="credits">Credits</button>
+    <div id="barre">
+		<div id="LP">
+			<img id="LPimg">
+		</div>
+      <div id="infos">
+      </div>
+      <div id="boutons">
+	<button id="gen" onclick="relancer(1.12,65,5,0);">Relancer</button>
+	<button id="replaceBoat" onclick="initBoat();">Replacer bateau</button>
+	<button id="credits">Credits</button>
+      </div>
     </div>
   </body>
   <script type="text/javascript" src="script.js"></script>
+  <script type="text/javascript" src="jquery-3.1.1.js"></script>
 </html>

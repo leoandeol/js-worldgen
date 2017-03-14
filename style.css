@@ -1,22 +1,31 @@
 body {
     display:flex;
+    flex-direction:column;
+    //background-image:url('img/bcg2.jpg');
+    background-color:grey;
+    margin:0 28%;
+}
+
+#barre, #jeu {
+    border: 5px solid black;
+    width:1040px;
+}
+
+#barre {
+    display:flex;
+    background-color:grey;
     flex-direction:row;
-    margin:0;
 }
 
 #player {
 	position:absolute;
-	width:16px;
-	height:16px;
 	top:0px;
 	left:0px;
-	z-index:1;
+	z-index:3;
 }
 
 #weapon {
     position:absolute;
-    width:16px;
-    height:16px;
     top:0px;
     left:0px;
     z-index:2;
@@ -24,19 +33,16 @@ body {
 
 #boat{
 	position:absolute;
-	width:16px;
-	height:16px;
 	z-index:2;
 }
 
 #jeu {
-    flex:1;
-    position:relative;
+    position:relative;/*
+    zoom: 0.75;
+    -moz-transform: scale(0.75);*/
+    height:1040px;
 }
 
-#jeu,#infos {
-    border-right: 5px solid black;
-}
 
 #infos,#boutons {
     display:flex;
@@ -44,6 +50,11 @@ body {
     width:300px;
     margin:0 auto;
     text-align:center;
+}
+
+#LPimg {
+	width:300px;
+	height:100px;
 }
 
 h3 {
