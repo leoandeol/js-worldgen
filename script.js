@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 //GLOBALS VAR 
 var world; 
 var jeu; 
